@@ -1,0 +1,880 @@
+---
+title: Introduction to R and RStudio
+author:
+  - name: Dr J H Klopper
+    affiliation: Milken Institute School of Public Health
+title-block-banner: true
+fig-cap-location: top
+callout-icon: false
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: Contents
+    html-math-method: katex
+    code-line-numbers: true
+    code-copy: true
+    embed-resources: true
+    self-contained-math: true
+    theme: sandstone
+---
+
+<p xmlns:cc="http://creativecommons.org/ns#" xmlns:dct="http://purl.org/dc/terms/"><span property="dct:title">This chapter of R for Health Data Science</span> by <span property="cc:attributionName">Dr J H Klopper</span> is licensed under <a href="http://creativecommons.org/licenses/by-nc-nd/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">Attribution-NonCommercial-NoDerivatives 4.0 International<img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1"><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1"><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/nc.svg?ref=chooser-v1"><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/nd.svg?ref=chooser-v1"></a></p>
+
+![](GWU_Logo_Horizontal.png)
+
+## Introduction
+
+Welcome to this course on R for public health and biomedical research. This set of notes introduces the R language for statistical analysis and data science.
+
+R is a programming language for statistical computing and data visualization. It is a free and open-source programming language that was developed in the early 1990s. R is designed specifically for statistical computing and is widely used in the many fields of research. It is a high-level language, meaning that it is easy to read and write, and it has a large number of built-in functions for performing statistical and graphical analyses.
+
+R is an interpreted language, meaning that the code is not compiled, but rather is executed directly by an interpreter (software that executes the code). This makes it easy to try out small pieces of code, called *scripts*, and see the results immediately, which is useful for data exploration and prototyping.
+
+R is widely used among statisticians and data scientists for developing statistical software and data analysis. The language has a number of features that make it well-suited for data analysis, including the following.
+
+-   A large collection of built-in statistical and graphical functions
+-   An active and vibrant user community that has contributed a wide range of packages for tasks such as machine learning, text mining, and social network analysis
+-   Support for object-oriented programming and functional programming
+-   Integration with other software, such as databases and web servers
+
+One of the strengths of R is its ability to handle large and complex data sets. It also has a number of graphical capabilities, which make it easy to create high-quality plots and charts.
+
+R is open source software, which means that it is free to use and distribute. It is available for Windows, MacOS, and Linux. There are a number of integrated development environments (IDEs) available for R, which provide a more user-friendly interface for writing and running R code. RStudio is one such development environment that lends itself perfectly to training and working in R. RStudio can generate many document types. R markdown files, and now Quarto documents, have become the standard in producing R code.
+
+::: {.callout-note icon="false"}
+## Task
+
+Read up about the history of the R programming language.
+:::
+
+::: {.callout-tip icon="false" collapse="true"}
+## Solution
+
+There are many online resources about the history and development of R. In short, we have the following.
+
+*R is a programming language and software environment for statistical computing and graphics that was developed in the early 1990s. It was created by Ross Ihaka and Robert Gentleman at the University of Auckland in New Zealand. The language was designed to be a free and open-source alternative to the popular statistical software package S, which was developed by Bell Labs.*
+
+*R was initially released in 1993 and has since become one of the most popular programming languages for data analysis and statistical computing. It has a large and active user community, with many developers contributing packages and extensions to the language. R is used by researchers, data scientists, and statisticians in a wide range of fields, including biology, finance, and social sciences.*
+:::
+
+There is a lot to learn about R. Certainly much, much more than what we can cover in a five-week course. Instead, we will concentrate on the fundamentals and learn along way, putting more emphasis on practice than on computer programming theory.
+
+## R markdown files and Quarto documents
+
+In this course, we will use RStudio. We consider this development environment in the same way as Microsoft Word which is an IDE for writing documents. RStudio is the most popular IDE for the R language and can be downloaded from the Posit website.
+
+The installation of R and RStudio, once downloaded, is straightforward. Remember to install R first and then RStudio. R can be installed from [the comprehensive R archive network](https://cran.r-project.org "Download and install R.") and RStudio can be installed from the newly renamed [Posit company website](https://posit.co "Download and install RStudio."). Make sure to download the versions for your operating system.
+
+Code for statistical analysis in RStudio can be done using a simple script (under the File menu or the Green PLUS button under it). While completely acceptable, it is much more elegant to use an R markdown file or a Quarto document. They allow for the creation of much richer research documents, containing text, code, and the results produced by the code, be it statistical analysis, or plots and figures.
+
+This document that you are reading was created as a Quarto document in RStudio. A Quarto document allows for the use of simple markdown to style the document. The end-result can be exported as a Microsoft Word document, a web-page, or even a PDF file. Information about Quarto documents can be found on the [official website](https://quarto.org "Link to Quarto home page.").
+
+The interface of the RStudio development environment and the different document types will be discussed in class. As brief introduction here, we note the following.
+
+A new R markdown file or a Quarto document can be created from the File menu or from the drop-down menu containing the green PLUS symbol right below the File menu. When a new file is created, choose an appropriate name for the file and add your name as author. The rest of the new file creation pop-up text box settings, can be left at their default values.
+
+The top of a new file is code written in YAML (Yet Another Markup Language). You will note the file name and the name of the author that you initially entered, appears here, together with the current date. You can change these values manually, but take care to preserve the structure.
+
+Every new R markdown file or Quarto document contains some template text and code. Everything from the \## R markdown section or Quarto title and below can be highlighted and deleted. We will replace this with our own text and code. It is worthwhile, though, to take a look at the template code for a brief overview. By clicking on Create Empty Document in the bottom left of the dialog box that opens when we create a new Quarto Document, the template code will not appear.
+
+Normal English sentences can be written anywhere on the page. Headings are identified by hash-tag (pound) symbols, from one hash-tag, \# (large title or level $1$ heading), to six hash-tags, \###### (small sub-sub-sub-sub-sub title or level $6$ heading). These are for decreasing sizes such that a single hash-tag is the largest text. They are referred to as heading sizes.
+
+Words within an area of normal English can be italicized or written in bold face. To achieve the former, place an underscore directly in front of and after the selected word(s). Double underscores will be shown as bold face font when the file is exported as a Word document, HTML web page, or PDF document.
+
+Words written within single tick marks are displayed as code when exporting an R markdown file or Quarto document, in the formats mentioned above. On most keyboards, this is on the upper-left, next to the number 1 key. On a standard Apple Mac keyboard, it is to the left of the Z key or in the upper left side of the keyboard. It is used for stylistic purposes in this set of notes.
+
+Numbers can be placed inside of a pair dollar symbols, i.e. `$7$`, in the body of text (in a sentence or in a paragraph), and will print a neat mathematical notation $7$ to the screen. The dollar symbols signify the use of LaTeX code for mathematical typesetting. We can also use double dollar notation, `$$$$`, to print a separate equation or multiple lines of mathematical notation, such as seen in @eq-partialderivative.
+
+$$
+\begin{align}
+&f (x,y) = x^{2} + xy^{2} \\ \notag \\ 
+&\frac{\partial{f}}{\partial{x}} = 2x + y^{2} \notag
+\end{align}
+$$ {#eq-partialderivative}
+
+Actual R code is written inside of code chunks. The shortcut keystroke for the creation of a chunk is CTRL+ALT+I (or CMD+OPT+I on a Mac). Chunks start and end with three tick marks. The first line (directly after the first three tick marks) must contain the string {r}. Chunks can be named.
+
+Chunks of code can contain comment lines, preceded by a hash-tag symbol, `#`. The R interpreter (the software that executes our code) ignores everything on a line of code that follows a hash-tag.
+
+We start our exploration of R by looking at simple arithmetic.
+
+## Simple arithmetic
+
+Below, we create a code chunk. We are simply going to add some numbers. Note the use of hash-tags inside of chunks. We use them to leave useful information, either to ourselves, for when reviewing our code at a later stage, or for others, who might be collaborating with us.
+
+Code chunks are executed by the keyboard shortcut showed in the code below. Alternatively hit the right-facing, small, green arrow to the right of the code chunk.
+
+```{r Addition}
+2 + 2 + 4  # Code entered
+# Hit SHFT+CTR+ENTER (SHFT+CMD+RETURN on a Mac) to execute the chunk or hit the PLAY button
+```
+
+The result `[1] 8` appears. The answer is indeed $8$. In many cases, we are going to see more than one value as a result. Each one is given a numerical name, starting at $1$, hence the `[1]`. This is called the **index** of a value.
+
+The next few chunks are appropriately named and showcase some common arithmetical operations. Look at the code comments (after the hash-tags) for explanation. Leave your own code comments as notes for future reference. You can also write normal English sentences between the code chunks. Just remember to use hash-tags for the heading sizes.
+
+```{r Subtraction}
+8 - 3 - 1 # Subtracting 3 and then 1 from 8
+```
+
+```{r Multiplication}
+# Use the star symbol, that is SHFT+8 on most keyboards
+3 * 4
+```
+
+```{r Division}
+# Use the / symbol
+8 / 2
+```
+
+```{r Powers}
+# Use the ^ (SHFT+6 on most keyboards)
+3^2
+```
+
+## Mathematical functions
+
+R is in essence a *functional language*. Below are four functions, `log`, `log10`, `exp`, and `round`. These are in-built keywords that tell R to execute an instruction. Arguments are passed to functions and these go inside of the parentheses that follow function names. Functions use these values to act on so as to produce an output.
+
+In the code chunk below, we calculate the natural logarithm of the number $10$. The official keyword for the natural logarithm function is `log`. The number $10$ is passed as an argument.
+
+```{r Natural logarithm}
+# The log function uses Euler's number as base
+log(10)
+```
+
+Below are more mathematical functions in action. Look at the comments for more information and try some yourself.
+
+```{r Logarithm base 10}
+# When requiring the log-base-10 use the log10 function
+log10(1000)
+```
+
+```{r Exponents}
+# Euler's number
+exp(1)
+```
+
+Below is the `round` function. We use it to limit how many numbers are displayed. It takes two arguments. Note that all arguments are separated by commas. The second argument is not only a value, but has a keyword followed by an equal sign, and then followed by the value for that keyword.
+
+```{r Round to with two decimal places}
+# The round function reduces the number of decimal places
+# A second argument is passed to the round function: digits = 2, indicating two decimal places
+# Note that arguments are separated by comma's
+round(
+  1.2375,
+  digits = 2
+)
+```
+
+::: {.callout-note icon="false"}
+## Task
+
+Calculate solutions to the following expressions.
+
+$$
+3 + 4 - 7 + 2
+$$ {#eq-one}
+
+$$
+\frac{7 \times 3}{21 + 42}
+$$ {#eq-two}
+
+$$
+\log_{10}{\left( 10000 \right)}
+$$ {#eq-three}
+
+$$
+\text{The circumference of a circle of radius, } r = 3 \text{, if the circumeference is } 2 \pi r
+$$ {#eq-four}
+:::
+
+::: {.callout-tip icon="false" collapse="true"}
+## Solution
+
+@eq-one
+
+```{r}
+3 + 4 - 7 + 2
+```
+
+@eq-two
+
+```{r}
+(7 * 3) / (21 + 42)
+```
+
+@eq-three
+
+```{r}
+log10(10000)
+```
+
+@eq-four
+
+```{r}
+2 * pi * 3
+```
+:::
+
+## Computer variables
+
+While we can do a simple, or even very complex calculations to produce a once-off result, it is most common to store such *items* in computer memory. In the code chunk below, we calculate the average of three values. Most of us know that to calculate an average, we sum the values and divide this sum by the number of elements. So, let us see the average of the three numbers $11$, $15$, and $19$.
+
+```{r Calculating an average}
+(11 + 15 + 19) / 3
+```
+
+Note the use of parenthesis to force the order of arithmetical operation. Division and multiplication are executed before addition and subtraction. The result is $15$. If we want to revisit this result later, we have to retype the calculation. This is fine if we have a short set of numbers. If we have thousands on the other hand, it would be tedious. Instead, we can create a space in computer memory to store this value for later recall.
+
+In order to achieve saving our results, we create a name, called a computer variable name or just **variable** for short. This creates the storage space in memory. We then assign the *item* to this variable (memory space). We are free to create our own names. It is useful to make it descriptive for future reference, though.
+
+While we have freedom to choose computer variable names, there are restrictions. We should not use keywords (function) assigned to R. We can also not use illegal characters such as spaces.
+
+It is most common to use what is known as snake case, where individual words are strung together using underscores, i.e. `my_average`. A few hints for naming computer variables are enumerated below. The camelCase notation is popular in other languages. Variable names that contain more than one word as written as a single word, starting with a lowercase letter, with each subsequent words starting with an uppercase letter. As an example we would have `myAverage`.
+
+1.  Make the name memorable and descriptive (for when you view the code later and want to remember what data it contains)
+2.  Don't use the keywords that R uses as functions
+3.  Start the word with a lowercase letter
+4.  Use numbers only at the end of a name
+5.  Don't use illegal characters such as spaces or symbols
+6.  Use more than one word and separate them with an underscore, i.e. `my_variable_name`
+
+Once we have created a variable name, we have to assign an object to it. In broad terms, an object in R is an instance of some class. Each instance of a class has a data type. Data types include vectors, characters, Boolean values, functions, and more.
+
+The solution to our calculated average example above was $15$. This is an integer. In R, we have an integer data type. See the next section for more on data types.
+
+The most used assignment operator in R is `<-`. The keyboard shortcut is **ALT and minus** (**OPT and minus** on a Mac). It assigns what is to the right of it, to what is to the left of it. Below, we assign our example average calculation to the computer variable `my_average`.
+
+```{r Assignment operator}
+my_average <- (11 + 15 + 19) / 3 # Assigning an object to a variable
+```
+
+We can now recall the object store in computer memory, by referencing the computer variable name.
+
+```{r Referencing the computer variable}
+my_average
+```
+
+
+The content of the memory space named `my_average_` is returned. We can also use the `=` symbol as assignment operator. We have seen it above using the `round()` function, where we assigned the value $2$ to the `digits` keyword argument. It is common to use the `=` symbol when dealing with arguments and the `<-` symbols as main assignment operator in R. Note that the `=` symbol is not the equal symbol in mathematics. In most computer language it is an assignment operator and assigns object to computer variables.
+
+## Data types
+
+In R, there are several data types that you can use to store and manipulate data. The R data types are listed below.
+
+-   Numeric
+    -   This data type is used to store numeric values, such as integers and floating-point numbers
+-   Character
+    -   This data type is used to store character strings, or text
+-   Factor
+    -   This data type is used to store categorical data, which can take on a limited number of values
+    -   Factors are often used to represent the levels of a categorical variable
+-   Logical
+    -   This data type is used to store Boolean values, which can be either `TRUE` or `FALSE`
+-   Complex
+    -   This data type is used to store complex numbers, which have a real and imaginary component
+-   Raw
+    -   This data type is used to store raw byte values
+
+In addition to these basic data types, R also has a number of other data structures that you can use to store and manipulate data. Data structures include vectors, matrices, arrays, lists, and data frames. These data structures allow you to store and manipulate multiple values at once, and are often used to represent data sets and data sets with multiple columns.
+
+## Data structures
+
+### Vectors
+
+Vectors are the default collection object in R. The `c` function is used to create vectors. Values are passed as arguments, with a comma in between each. Below we see an example of an atomic vector of integers.
+
+```{r Atomic vector of integers}
+c(100, 200, 300, 400, 500)
+```
+
+We can specify that the values are integers by using the `L` suffix.
+
+```{r Using the L suffix}
+c(100L, 200L, 300L)
+```
+
+Apart from *integer* values, the elements may also be decimal values (also called floating point numbers or *doubles*), Boolean or logical values (true or false), and characters (*strings* or words).
+
+Numbers can usually be written as such in code. Words or sentences must be placed inside of quotation marks.
+
+```{r Vector of Boolean value}
+c(TRUE, FALSE, FALSE, TRUE)
+```
+
+```{r Vector of characters}
+c("ARDS", "Pneumonia", "Pneumonia")
+```
+
+The `is.vector` function can check if we have indeed created a vector.
+
+```{r Checking on vectors}
+is.vector(c("ARDS", "Pneumonia", "Pneumonia"))
+```
+
+The results is a vector with only one element, `TRUE`, indicating that `c("ARDS", "Pneumonia", "Pneumonia")` did indeed generate a vector.
+
+The `typeof` function can check on the type of the elements of a vector.
+
+```{r Type of elements of a vector}
+typeof(c(TRUE, TRUE, FALSE))
+```
+
+The `str` function, short for *structure*, gives all of the above information.
+
+```{r The structure of the vector}
+str(c(TRUE, TRUE, FALSE))
+```
+
+We note that we have three elements of logical type, indicated by `logi`.
+
+If a vector contains objects of different types, a hierarchical structure is used. The character data type, indicated by `chr`, is higher than the numerical data types, which is in turn higher than the logical data type in this hierarchy. A vector of values `TRUE, 1, "1"` which return a character data type.
+
+```{r}
+str(c(TRUE, 1, "1"))
+```
+
+We note that the hierarchical structure *turned* `TRUE` and `1` into characters. This is termed coercion. R will attempt to coerce the element types, transforming all element types to the same type. There is a hierarchy of types and all the data will be coerced into the data type of the element in the vector that is highest in the hierarchy.
+
+```{r A vector containing an integer, a double, and a Boolean value}
+c(1L, 2.0, FALSE, TRUE)
+```
+
+Note that `FALSE` is represented internally by R as a $0$ and `TRUE` by a $1$. We can check if this coercion to numerical values has been effected, by using the `is.numeric()` function.
+
+```{r Checking to see if the values are numeric}
+is.numeric(c(1L, 2.1, FALSE, TRUE))
+```
+
+We can therefor do arithmetic with the logical data type.
+
+```{r Arithmetic with logical data type}
+TRUE + TRUE # TRUE + TRUE is the same as 1 + 1
+```
+
+We can reference an element in a vector by its index value. Below, we assign a vector to the computer variable `vectror_01`. The `TRUE` value is in position $3$. Note the use of square brackets, `[]`, to denote indexing (position of an element).
+
+```{r Returning the value in position 3}
+vector_01 = c(FALSE, FALSE, TRUE, TRUE)
+vector_01[3]
+```
+
+We can change the value given its index (position). Below, we change the `TRUE` to a `FALSE`.
+
+```{r Changing the value of an element in a vector}
+vector_01[3] <- FALSE
+vector_01
+```
+
+Note that any value that is changed or added, is coerced so that all elements are of the same type.
+
+```{r Adding a non logical value}
+vector_01[5] <- "100"
+vector_01
+```
+
+Since the added value of $100$ is not a number but a character, we cannot do arithmetic with it such as `vector_01[5] * 10`. This will return an error, `Error in vector_01[5] * 10 : non-numeric argument to binary operator`, stating that `"100"` is a character.
+
+The elements of a vector can each be given a name, called a *key*.
+
+```{r Name each element of a vector}
+c(a = 1, b = 2, c = 3)
+```
+
+The `setNames()` function can simplify the process. Below, we use range notation, `1:3` meaning $1,2,3$.
+
+```{r Using setNames}
+setNames(1:3, c("a", "b", "c"))
+```
+
+An quick way of generating a vector of sequential number is to use a unit range. A start and end value are separated by a colon. Below, we generate a vector of number $3$ through $7$.
+
+```{r}
+3:7
+```
+
+::: {.callout-note icon="false"}
+## Task
+
+Verify that the following code produces a vector of integers.
+
+`7:21`
+:::
+
+::: {.callout-tip icon="false" collapse="true"}
+## Solution
+
+```{r}
+typeof(7:21)
+```
+:::
+
+Instead of using a unit range, we can also use the `seq` function to create a vector. The arguments set a start (the `from` argument) and an end number (the `to` argument), and well as a step size (the `by` argument). Below, we assign a vector to the variable `vector_02`. The vector is a sequence of integers from $10$ to $20$ in steps of $2$.
+
+```{r}
+vector_02 <- seq(
+  from = 10,
+  to = 20,
+  by = 2
+)
+vector_02
+```
+
+The `rep` function repeats a given vector of values. Either the vector or the individual elements can be repeated. In `vector_03` we repeat the elements `"a"`, `"b"`, `"c"` three times using the `times` argument, and in `vector_04`, we add the `each` argument, to repeat each element three times.
+
+```{r}
+vector_03 <- rep(
+  c("a", "b", "c"),
+  times = 3
+)
+vector_03
+```
+
+```{r}
+vector_04 <- rep(
+  c("a", "b", "c"),
+  each = 3
+)
+vector_04
+```
+
+### Lists
+
+Lists can contain elements of different type and these elements will not be coerced. The keyword `list` is used.
+
+```{r Creating a list of different types}
+list_01 <- list(1L, 2.1, FALSE, TRUE, "R", c(1, "one"))
+list_01
+```
+
+The `is.list` function determines if its argument is a list object.
+
+```{r Checking to see if the object is a list}
+is.list(list_01)
+```
+
+We can add elements to a list, by specifying a position. First, we inspect how many elements there are in the list using the `length` function.
+
+```{r Number of elements in th elist}
+length(list_01)
+```
+
+Note that although we have seven entries, the last is a vector containing two values. The vector is counted as a single entry in the list. This gives rise to the concept of a nested list. Lists (or other collections) inside of a list.
+
+We now add the character `"R language"` to the list object `list_01`.
+
+```{r Adding the element "R language" to the list}
+list_01[7] <- "R language"
+list_01
+```
+
+When a list is created as key-value pairs, we can use attribute notation, specifying the key name, to return a value.
+
+```{r List objhect with key-value pairs}
+list_02 <- list(variable01 = "Age", variable02 = 1000)
+list_02
+```
+
+We can now refer to each entry using the `$` attribute notation.
+
+```{r Returning the value of the variable02 key}
+list_02$variable02
+```
+
+### Matrices
+
+A matrix is an object that can hold data along more than one axis. Below we generate a matrix object of zeros along three rows and four columns, using the `matrix` function.
+
+```{r Creating a matrix with 3 rows and 4 columns of 0}
+matrix_01 = matrix(0,
+                   nrow = 3,
+                   ncol = 4)
+matrix_01
+```
+
+The `dim` function returns a vector containing the number of rows and columns of a matrix.
+
+```{r The dimensions of a matrix}
+dim(matrix_01)
+```
+
+::: {.callout-note icon="false"}
+## Task
+
+Recreate the following matrix using R.
+
+$$
+\begin{pmatrix}
+4 & 4 & 2 \\
+2 & 7 & 0 \\
+-1 & 8 & 2
+\end{pmatrix}
+$$
+:::
+
+::: {.callout-tip icon="false" collapse="true"}
+## Solution
+
+```{r}
+matrix(
+  c(4, 2, -1, 4, 7, 8, 2, 0, 2),
+  nrow =  3
+)
+```
+:::
+
+A matrix object can only contain elements in rows and columns. As array object on the other hand can contain more dimensions.
+
+### Arrays
+
+Arrays are given elements along one or more dimension. We start by creating an array that repeats the number $100$, three times.
+
+```{r Creating an array of three elements each of value 100}
+array_01 <- array(100, 3)
+array_01
+```
+
+Below, we see another example. Two rows and three columns of the Boolean value `TRUE`.
+
+```{r Creating an array of six TRUE elements along 2 rows and three columns}
+array_02 <- array(TRUE, c(2, 3))
+array_02
+```
+
+The dimensions (number of rows and number of columns) of `array_02` is shown below.
+
+```{r An array has dimension}
+dim(array_02)
+```
+
+The `nrow` and `ncol` functions return the number of rows and columns of an array or matrix.
+
+```{r Number of rows}
+nrow(array_02)
+```
+
+```{r Number of columns}
+ncol(array_02)
+```
+
+We can pass a vector as values for the array. Below, we specify the elements $1,2,3$, and $4$. The second argument specifies that these four number must be generated along two rows and two columns.
+
+```{r  Creating a two row and two column array from values in a vector}
+array(c(1, 2, 3, 4), c(2, 2))
+```
+
+We can create a *same-looking* object using the functions `array` and `matrix`. Checking for equality, we note an element-wise comparison. Note the use of the double equal sign, `==`. It is a comparison operator and checks for equality of the objects on either side of it. See more on comparison operators later.
+
+```{r Element wise euqlity of objects}
+array(c(1, 2, 3, 4), c(2, 2)) == matrix(c(1, 2, 3, 4),
+                                        nrow = 2,
+                                        ncol = 2)
+```
+
+Comparing the type of objects, we note that they are indeed the same. Remember, though, that a matrix object is confined to rows and columns and an array object can have more the these two dimensions.
+
+```{r Comparing object types}
+typeof(array(c(1, 2, 3, 4), c(2, 2))) == typeof(matrix(c(1, 2, 3, 4),
+                                        nrow = 2,
+                                        ncol = 2))
+```
+
+### Factors
+
+Factors help us when dealing with categorical variables (words or characters or strings). Below is an atomic vector that contains elements of value `"a"` and `"b"`.
+
+```{r A vector with character elements}
+c("a", "b", "b", "a")
+```
+
+Clearly we have only two unique elements. The `factor` function will extract those unique values, called *levels* or *classes* and display them.
+
+```{r The unique elements in a character vector}
+factor(c("a", "b", "b", "a"))
+```
+
+The levels `a` and `b` are printed with the vector.
+
+We can specify the unique values (levels) even if one or more of them do not appear as an element in the vector. The `levels` argument is used to specify the levels (and their order).
+
+```{r Specifying the levels}
+factor(c("Female", "Female", "Female"), levels = c("Female", "Male"))
+```
+
+The `table` function will count how many times each level of a factor appears in the vector.
+
+```{r Using the table function to count unique elements}
+table(factor(c("Female", "Female", "Female"), levels = c("Female", "Male")))
+```
+
+::: {.callout-note icon="false"}
+## Task
+
+Use the `table` function to calculate the frequency of each unique element in the vector assigned to the variable `vector_05` below.
+
+```{r}
+vector_05 <- c("Group I", "Group II", "Group I", "Group I", "Group II", "Group I", "Group I", "Group II", "Group II")
+```
+:::
+
+::: {.callout-tip icon="false" collapse="true"}
+## Solution
+
+```{r}
+table(vector_05)
+```
+:::
+
+## Comparison operators
+
+We have had a quick look at the equality comparison operator, `==`. The equality comparison operator verifies if the two objects on either side of it are equal. In the case of data structures, each element is compared.
+
+The less than, `<` and greater than, `>`, operators are useful and commonly used. We inspect some of their functionality with respect to the familiar setting of numbers below. We also view their counterparts, less than or equal to, `<=`, and greater than or equal to, `>=`.
+
+```{r Is 4 less tahn 1}
+4 < 1
+```
+
+```{r Is 4 greater than 1}
+4 > 1
+```
+
+```{r Is 3 less than or equal to 3}
+3 <= 3
+```
+
+```{r Is 3 more than or equal to 3}
+3 >= 3
+```
+
+The not equal to operator, `!=`, verifies non-equality.
+
+```{r Is 4 not equal to 1}
+4 != 1
+```
+
+## Creating random values
+
+Data point values for statistical variables are distributed according to a pattern, called a *distribution*. We can create these values at random and store them in objects.
+
+One such distribution is the *uniform distribution*. All the values that can be randomly selected (think of pieces of paper in a bowl from which you can draw), have an even likelihood of being chosen.
+
+Below, we place the number $15$ through $85$ in the proverbial bowl. We instruct the `sample` function to use these values (the first argument). The second argument instructs the function that we want to do this $500$ times. Because $500$ is more than the actual number of values to choose from, we instruct the `sample` function to *put each number back in the bowl after selecting it*, ready to be re-drawn at random. This is achieved by setting the `replace` argument to `TRUE`.
+
+You will also note the `set.seed` function that precedes this random number selection code. Any arbitrary integer can be passed as argument. It forces the pseudo-random number generator in R to follow a fixed pattern and spit out the exact same values every time the code is run. This is done here simply for reproducibility purposes.
+
+```{r Sampling from a set of integer values}
+set.seed(123)  # Forcing the same pseudo-random values
+age <- sample(18:85,  # Choose between 15 and 85 (inclusive)
+              500,  # Do this 500 times so that we end up with 500 random numbers
+              replace = TRUE)  # Replace every number for future selection after it is chosen
+```
+
+In @fig-hist, we generate a histogram, showing the distribution of all $500$ values in the `age` variable. We will take a closer look at data visualization later in the course, so the code to generate the figure below can be ignored. We also create a data frame object. Both plotting and data frame objects will be covered later in the course.
+
+```{r}
+#| label: fig-hist
+#| fig-cap-location: top
+#| fig-cap: Histogram of age values
+#| message: false
+#| warning: false
+#| code-fold: true
+#| code-summary: "Click to show the code"
+library(magrittr)
+library(ggplot2)
+library(ggthemes)
+dfr <- data.frame(
+  Age = age
+)
+dfr %>% ggplot2::ggplot(
+  aes(
+    x = Age
+  )
+) + 
+  ggplot2::geom_histogram(
+    breaks = seq(from = 15, to = 90, by = 5),
+    closed = "left",
+    color = "black",
+    fill = "gray"
+  ) +
+  ggthemes::theme_economist_white() +
+  labs(
+    title = "Distribution of age values",
+    x = "Age",
+    y = "Frequency"
+  )
+```
+
+Next up, we select from a normal (bell-shaped) distribution. We specify a mean of $120$ and a standard deviation of $10$. Note that we place the `rnorm` function, with its three arguments as the first argument inside of the `round` function. The second argument of the latter specifies that we want to round off each of the $500$ random values to a single decimal place.
+
+```{r A normal distribution}
+set.seed(123)  # Forcing the same pseudo-random values
+# Creating a function within a function
+control_group_var <- round(rnorm(500,  # Select 500 number from a normal distribution
+                                 mean = 120,  # Use a mean of 120
+                                 sd = 10),  # Use a standard deviation of 10
+                           digits = 1)  # Round to one decimal place
+dfr$ControlGroupVar <- control_group_var
+```
+
+In @fig-histcontrolvar it is clear that the values are from a population in which the value follows a normal distribution.
+
+```{r}
+#| message: false
+#| warning: false
+#| label: fig-histcontrolvar
+#| fig-cap: Histogram of variable distribution in control group
+#| fig-cap-location: top
+#| code-fold: true
+#| code-summary: "Click to show the code"
+dfr %>% ggplot2::ggplot(
+  aes(
+    x = ControlGroupVar
+  )
+) + 
+  ggplot2::geom_histogram(
+    breaks = seq(from = 80, to = 160, by = 10),
+    closed = "left",
+    color = "black",
+    fill = "gray"
+  ) +
+  ggthemes::theme_economist_white() +
+  labs(
+    title = "Distribution of control group variable values",
+    x = "Control group variable",
+    y = "Frequency"
+  )
+```
+
+Many other distributions are available. Below, we select from the $\chi^2$ distribution, with two degrees of freedom.
+
+```{r Chi-squared distribution}
+set.seed(123)  # Forcing the same pseudo-random values
+# Using the rchisq() function as fist argument in the round() function
+crp <- round(rchisq(500,  # Requiring 500 random values
+                    df = 2),  # Selecting two degrees of freedom
+             digits = 1)  # Rounding to the nearest single decimal place
+dfr$CRP = crp
+```
+
+In @fig-chisq we see the right-tailed distribution of values.
+
+```{r}
+#| label: fig-chisq
+#| fig-cap: Right-skewed distribution
+#| fig-cap-location: top
+#| code-fold: true
+#| code-summary: "Click to show the code"
+dfr %>% ggplot2::ggplot(
+  aes(
+    x = CRP
+  )
+) + 
+  ggplot2::geom_histogram(
+    breaks = seq(from = 0, to = 13, by = 1),
+    closed = "left",
+    color = "black",
+    fill = "gray"
+  ) +
+  ggthemes::theme_economist_white() +
+  labs(
+    title = "Distribution of CRP values",
+    x = "CRP values",
+    y = "Frequency"
+  )
+```
+
+We can also create an atomic vector by selecting at random from the sample space of a categorical variable using the `sample` function. Below, we create four choices and make $500$ random selections.
+
+```{r Nominal categorical variable}
+set.seed(123)
+comorbidities <- sample(c("HT", "DM", "Obesity", "Substance abuse"),
+                        500,
+                        replace = TRUE)
+dfr$Comorbidities <- comorbidities
+```
+
+In @fig-bar we see a bar plot of the frequency of the levels of the `comorbidities` variable.
+
+```{r}
+#| label: fig-bar
+#| fig-cap: Bar plot
+#| fig-cap-location: top
+#| code-fold: true
+#| code-summary: "Click to show the code"
+dfr %>% ggplot2::ggplot(
+  aes(
+    x = Comorbidities,
+    fill = Comorbidities
+  )
+) + 
+  ggplot2::geom_bar() +
+  ggthemes::theme_economist_white() +
+  labs(
+    title = "Frequency of comorbidities",
+    x = "Comorbidities",
+    y = "Frequency"
+  )
+```
+
+## Conclusion
+
+This notebook was packed with information. It will stand you in good stead to remember these important points when you start to collect and analyze your own data. Refer back to it often as we continue with the course.
+
+## Lab assignment \[25 points\]
+
+### Section 1 \[10 points\]
+
+Calculate the solution to the following five exercises. You may have to look up some of the required functions.
+
+$$
+3 \times 4 + 7 - 8 \div 13
+$$
+
+$$
+e^{-3}
+$$
+
+$$
+\sqrt[4]{100}
+$$
+
+$$
+\log_{e}{\left(15.8 \right)}
+$$
+
+$$
+\sin{\left( \frac{\pi}{6} \right)}
+$$
+
+### Section 2 \[2 points\]
+
+Why would the code produce an error?
+
+```         
+x = 3
+y = 2
+
+x + Y
+```
+
+### Section 3 \[4 points\]
+
+Create a vector of the sequence of values $3,5,7, \ldots, 19, 21$.
+
+### Section 4 \[4 points\]
+
+Determine if the values in the `lab_vector` variable are numeric.
+
+```{r}
+lab_vector <- c(3, 6, 3.141592654, 3 + 4i)
+lab_vector
+```
+
+What data type does the code `3 + 4i` produce?
+
+### Section 4 \[5 points\]
+
+Create a vector of $100$ values assigned to the variable `height` that rounds the values to one decimal place and is taken from a normal distribution with a mean, $\mu=172$, and a standard deviation, $\sigma=10$.

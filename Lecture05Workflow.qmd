@@ -1,0 +1,648 @@
+---
+title: Workflow
+author:
+  - name: Dr J H Klopper
+    affiliation: Milken Institute School of Public Health
+title-block-banner: true
+caption-icon: false
+fig-cap-location: top
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: Contents
+    code-line-numbers: true
+    code-copy: true
+    embed-resources: true
+    theme: sandstone
+---
+
+<p xmlns:cc="http://creativecommons.org/ns#" xmlns:dct="http://purl.org/dc/terms/"><span property="dct:title">This chapter of R for Health Data Science</span> by <span property="cc:attributionName">Dr J H Klopper</span> is licensed under <a href="http://creativecommons.org/licenses/by-nc-nd/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">Attribution-NonCommercial-NoDerivatives 4.0 International<img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1"><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1"><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/nc.svg?ref=chooser-v1"><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/nd.svg?ref=chooser-v1"></a></p>
+
+## Introduction
+
+In this last notebook we will consider the workflow for a simple public health / biomedical science research project.
+
+A R markdown file or a Quarto document is the ideal way to create a research document, either for your own purposes or within a research team. All the analysis is clearly visible to everyone and the analysis is reproducible. If the results of the analysis is submitted for publication or presentation and their are any requests to view the analysis, a R markdown file or Quarto document will allow other to verify and understand your work.
+
+As R is open-source, the review of analysis can be down to machine language instruction level. This cannot be said of any proprietary software such as SAS, where we have to take the word of a corporation that the code is correct. Plus, we have to pay them a lot of money for that promise.
+
+## Setting up the analysis
+
+Two important parts of starting an analysis, is to import the required libraries and to set the working directory.
+
+### Import libraries
+
+Below, we import the libraries that we will use in our research project.
+
+```{r}
+#| message: false
+#| warning: false
+library(readr)
+library(psych)
+library(dplyr)
+library(ggplot2)
+library(ggthemes)
+library(plotly)
+library(ggstatsplot)
+library(vcd)
+library(epitools)
+library(lmtest)
+```
+
+### Set working directory
+
+MacOS refers to folders and Windows and Linux refer to directories on a computer. The `setwd` function in R sets the working directory. This allows us to easily reference files in the current working directory. This directory can be set as a character object. It is more common to pass the `getwd` function as argument. The `getwd` function returns the folder / directory that the current file (R markdown file / Quarto document) is located in.
+
+It is then the simplest to keep data files in the same directory / folder as the R file.
+
+```{r}
+setwd(getwd())
+```
+
+## Importing the data
+
+View have examined how to import data, either using the `fread` function from the data.table library, `read.csv` from base R, and `read_csv` from the tidyverse readr library. Below, we import a `csv` file which we will use in this notebook using the `read_csv` function.
+
+```{r}
+#| message: false
+#| warning: false
+dfr <- readr::read_csv("Health.csv")
+```
+
+## Inspecting the data
+
+We note from the Environment panel in the top-right of the RStudio interface that the `dfr` data object contains data on $301$ observations across $6$ variables. The same information is returned using the `dim` function.
+
+```{r}
+dim(dfr)
+```
+
+The `dfr` data object contains missing values. With $301$ observations and $6$ variables, we should have $301 \times 6 = 1806$ data points. The `is.na` function returns Boolean values, with `TRUE` if a data point is missing and `FALSE` if it present. Below, we pass it to the `sum` function. We remember that `TRUE` is stored internally as the number $1$. Summing over all the Boolean values will return the number of missing data points. If we divide this by the total number of data points, we get the proportion of missing data.
+
+```{r}
+# Proportion of missing data
+sum(is.na(dfr)) / (301 * 6)
+```
+
+We note that less than $1\%$ of the data is missing. It is not uncommon to have missing data and we must be able to deal with it.
+
+Below, we use the `str` function to inspect more metadata.
+
+```{r}
+str(dfr)
+```
+
+We see `NA` values. These are the missing data points.
+
+As mentioned, we have $14$ variables, one in each column of the data set in accordance with the principles of tidy data. The column $\texttt{cad}$ contains data on the response or target variable, with levels $0$ if no coronary artery disease is present, and $1$ if coronary artery disease is present.
+
+The properties of the other $13$ variables are tabled below. (ECG is electrocardiogram.)
+
++-------------------------+--------------------------------------------+-----------------------------------------------------------------------------------------+
+| Variable                | Explanation                                | Properties                                                                              |
++=========================+============================================+=========================================================================================+
+| $\texttt{age}$          | Age of participant                         | years                                                                                   |
++-------------------------+--------------------------------------------+-----------------------------------------------------------------------------------------+
+| $\texttt{sex}$          | Binary gender                              | 0 if female and 1 male                                                                  |
++-------------------------+--------------------------------------------+-----------------------------------------------------------------------------------------+
+| $\texttt{restbp}$       | Resting systolic blood pressure            | mm of mercury                                                                           |
++-------------------------+--------------------------------------------+-----------------------------------------------------------------------------------------+
+| $\texttt{chol}$         | Serum total cholesterol                    | mg/dL                                                                                   |
++-------------------------+--------------------------------------------+-----------------------------------------------------------------------------------------+
+| $\texttt{maxhr}$        | Maximum resting heart rate                 | Beats per minute                                                                        |
++-------------------------+--------------------------------------------+-----------------------------------------------------------------------------------------+
+
+: TABLE Variables
+
+The original data set from which our illustrative data set was taken, had many more variables. In practice, we have defined research questions and during the planning phase of a project we create a data collection tool to collect data on only the required variables to answer our research question(s). The rest of the data in a data set is redundant. (Note: In many cases a project contains many more variables. This makes future analysis for other projects possible or is simply part of a larger data gathering project.)
+
+## Research questions
+
+As illustrative example of how to use R is a data analysis project, we will state a primary research question and secondary research question.
+
+### Primary research question
+
+Are $\texttt{age, sex, restbp, chol,}$ and $\texttt{maxhr}$ associated with $\texttt{cad}$?
+
+### Secondary research questions
+
+- Is there a difference in the numerical variables between those with and without coronary artery disease?
+- Is binary sex associated with coronary artery disease?
+- Is there correlation between age and cholesterol values?
+
+Any data analysis project begins with summary statistics and data visualization.
+
+## Summary statistics
+
+The psych library has a useful `describe` function that performs summary statistics. We start with the $\texttt{age}$ variable.
+
+```{r}
+psych::describe(dfr$age)
+```
+
+We see the number of observations, _n_, the mean, standard deviation, _sd_, median, trimmed median, _trimmed_, the mean absolute deviation, _mad_, the minimum, _min_, the maximum, _max_, the range, the skewness, _skew_, the kurtosis, and the standard error, _se_.
+
+::: {.callout-note icon="false"}
+## Task
+
+Type describe in the search box of the Help tab in the right-bottom pane of the RStudio interface to read more about the `describe` function.
+:::
+
+The `describeBy` function has a `group` argument that takes a factor (categorical) variable as value. The summary statistics of the numerical variables is then performed for each of the levels of the factor variable. Below, we perform summary analysis of the $\texttt{age}$ variable by the two levels of the $\texttt{cad}$ variable. Since the latter was encoded with a $0$ and a $1$, we can use the `factor` function to set labels for the two levels, using the `labels` argument.
+
+```{r}
+# Setting labels for the cad variable levels
+dfr$cad <- factor(
+  dfr$cad,
+  levels = c(0, 1), # The order matters
+  labels = c("No", "Yes") # As per the encoding when the data was captured
+)
+```
+
+```{r}
+# Summary statistics of age by levels of coronary artery disease
+psych::describeBy(
+  dfr$age,
+  group = dfr$cad
+)
+```
+
+We note that there seems to be a difference between the mean ages of those without and those with coronary artery disease. We are already starting to understand the information in the data, before any test for inference has been performed.
+
+Next, we look at the comparative summary statistics of the resting blood pressure, with the comparison once again along the levels of the $\texttt{cad}$ variable.
+
+```{r}
+psych::describeBy(
+  dfr$restbp,
+  group = dfr$cad
+)
+```
+
+Below, we repeat the process for the $\texttt{chol}$ and $\texttt{maxhr}$ variable too.
+
+```{r}
+psych::describeBy(
+  dfr$chol,
+  group = dfr$cad
+)
+```
+
+```{r}
+psych::describeBy(
+  dfr$maxhr,
+  group = dfr$cad
+)
+```
+
+A contingency table summarizes the observed values for two categorical variables. We can create such a summary table of observed values for the binary sex, $\texttt{sex}$, and the coronary artery disease, $\texttt{cad}$, variables. We start by setting the levels and their labels for the $\texttt{sex}$ variable.
+
+```{r}
+dfr$sex <- factor(
+  dfr$sex,
+  levels = c(0, 1),
+  labels = c("Female", "Male")
+)
+```
+
+The `xtabs` function takes a formula as first argument. The formula is indicated by the `~` symbols. We list the two variable concatenated by the `+` symbol. Since $\texttt{sex}$ is the explanatory variable and $\texttt{sex}$ is the response variable, we use them in the formula in that order. The second argument is `data` and takes as value the data object that contains the variables.
+
+```{r}
+xtabs(
+  ~ sex + cad,
+  data = dfr
+)
+```
+
+The resultant table of observed data shows the joint frequencies.
+
+Now that we have a good idea of the information in the data, we enrich our understanding by visualizing the data.
+
+## Data visualization
+
+We have seen the comparative summary statistics for the continuous variables. Below, we create box-and-whisker plots for each of these. Box-and-whisker plots are a good choice for visualizing numerical data.
+
+We also see the use of the `ggplotly` function from the plotly library. We assign the plot to a variable and pass this as argument to the `ggpotly` function. The result is an interactive plot.
+
+The $\texttt{age}$ and $\texttt{cad}$ are considered in @fig-agecad.
+
+```{r}
+#| label: fig-agecad
+#| fig-cap: "Age difference"
+age_cad <- (dfr %>% ggplot2::ggplot(
+  aes(
+    x = cad,
+    y = age
+  )
+) +
+  ggplot2::geom_boxplot(
+    aes(
+      fill = cad
+    ),
+    show.legend = FALSE
+  ) +
+  ggplot2::labs(
+    title = "Distribution of age",
+    subtitle = "Comparison between coronary artery disease groups"
+  ) +
+  ggplot2::scale_fill_brewer(
+    palette = "Set1",
+    direction = -1
+  ) +
+  ggplot2::xlab("Coronary artery disease") +
+  ggplot2::ylab("Age") +
+  ggthemes::theme_clean());
+
+plotly::ggplotly(age_cad)
+```
+
+The $\texttt{restbp}$ and $\texttt{cad}$ are considered in @fig-restbpcad.
+
+```{r}
+#| message: false
+#| warning: false
+#| label: fig-restbpcad
+#| fig-cap: "Resting blood pressure difference"
+#| fig-cap-location: top
+restbp_cad <- (dfr %>% ggplot2::ggplot(
+  aes(
+    x = cad,
+    y = restbp
+  )
+) +
+  ggplot2::geom_boxplot(
+    aes(
+      fill = cad
+    ),
+    show.legend = FALSE
+  ) +
+  ggplot2::labs(
+    title = "Distribution of resting blood presure",
+    subtitle = "Comparison between coronary artery disease groups"
+  ) +
+  ggplot2::scale_fill_brewer(
+    palette = "Set1",
+    direction = -1
+  ) +
+  ggplot2::xlab("Coronary artery disease") +
+  ggplot2::ylab("Resting blood pressure") +
+  ggthemes::theme_clean());
+
+plotly::ggplotly(restbp_cad)
+```
+
+The $\texttt{chol}$ and $\texttt{cad}$ are considered in @fig-cholcad.
+
+```{r}
+#| message: false
+#| warning: false
+#| label: fig-cholcad
+#| fig-cap: "Cholesterol difference"
+#| fig-cap-location: top
+chol_cad <- (dfr %>% ggplot2::ggplot(
+  aes(
+    x = cad,
+    y = chol
+  )
+) +
+  ggplot2::geom_boxplot(
+    aes(
+      fill = cad
+    ),
+    show.legend = FALSE
+  ) +
+  ggplot2::labs(
+    title = "Distribution of cholesterols levels",
+    subtitle = "Comparison between coronary artery disease groups"
+  ) +
+  ggplot2::scale_fill_brewer(
+    palette = "Set1",
+    direction = -1
+  ) +
+  ggplot2::xlab("Coronary artery disease") +
+  ggplot2::ylab("Cholesterol") +
+  ggthemes::theme_clean());
+
+plotly::ggplotly(chol_cad)
+```
+
+The $\texttt{maxhr}$ and $\texttt{cad}$ are considered in @fig-maxhrcad.
+
+```{r}
+#| message: false
+#| warning: false
+#| label: fig-maxhrcad
+#| fig-cap: "Maximum heart rate difference"
+#| fig-cap-location: top
+maxhr_cad <- (dfr %>% ggplot2::ggplot(
+  aes(
+    x = cad,
+    y = maxhr
+  )
+) +
+  ggplot2::geom_boxplot(
+    aes(
+      fill = cad
+    ),
+    show.legend = FALSE
+  ) +
+  ggplot2::labs(
+    title = "Distribution of maximum heart rate",
+    subtitle = "Comparison between coronary artery disease groups"
+  ) +
+  ggplot2::scale_fill_brewer(
+    palette = "Set1",
+    direction = -1
+  ) +
+  ggplot2::xlab("Coronary artery disease") +
+  ggplot2::ylab("Maximum heart rate") +
+  ggthemes::theme_clean());
+
+plotly::ggplotly(maxhr_cad)
+```
+
+A scatter plot visualizes the correlation between two continuous variables. Below, we use the ggstatsplot library to create a visual representation of the correlation between the $\texttt{age}$ and $\texttt{chol}$ variables.
+
+The $\texttt{age}$ and $\texttt{chol}$ are considered in @fig-agechol.
+
+```{r}
+#| message: false
+#| warning: false
+#| label: fig-agechol
+#| fig-cap: "Age vs. cholesterol levels"
+#| fig-cap-location: top
+
+ggstatsplot::ggscatterstats(
+  data = dfr,
+  x = age,
+  y = chol,
+  bf.message = FALSE
+)
+```
+
+
+A mosaic plot is a visual representation of a contingency table or table of observed values. In @fig-sexcad, we visualize the joint proportions of the $\texttt{sex}$ and $\texttt{cad}$ variables.
+
+```{r}
+#| label: fig-sexcad
+#| fig-cap: "Sex vs. coronary artery disease"
+#| fig-cap-location: top
+vcd::mosaic(
+  ~ sex + cad,
+  data = dfr,
+  highlighting = "cad",
+  highlighting_fill = c("deepskyblue", "yellow"),
+  main = "Mosaic plot of binary sex and coronary artery disease"
+)
+```
+
+## Inferential statistics
+
+We are finally ready to answer the research questions. We will start with the secondary research question.
+
+### Is there a difference in the numerical variable between those with and without coronary artery disease?
+
+We recalculate the sample mean and standard deviation of the values in the `age` column below.
+
+```{r}
+dfr %>% group_by(cad) %>% 
+  summarize(
+    Average = mean(age),
+    StandardDeviation = sd(age)
+  )
+```
+
+Comparing a continuous variable between two groups can be conducted using a _t_ test or a Mann-Whitney-U test. We use the latter non-parametric test if the assumptions for the use parametric tests are not met.
+
+There are many assumptions for the use of parametric tests. Here, we will use the Shapiro-Wilk test to determine if the continuous variable is from a population in which the values are normally distributed. Under the null hypothesis for this test, the variable can be described by a normal distribution. We will set a level of significance of $\alpha=0.05$ throughout.
+
+Below, we use the `filter` and `select` verbs from the dplyr library and the the `pull` function that returns a vector of values. We use a pipeline to pipe the vector to the `shapiro.wilk` function. We start with the ages of those without coronary artery disease.
+
+```{r}
+dfr %>% 
+  filter(cad == "No") %>% # We have to use the label value that we set before
+  select(age) %>% 
+  pull() %>% 
+  shapiro.test()
+```
+We fail to reject the null hypothesis. Now, we do the same test for those with coronary artery disease.
+
+```{r}
+dfr %>% 
+  filter(cad == "Yes") %>% # We have to use the label value that we set before
+  select(age) %>% 
+  pull() %>% 
+  shapiro.test()
+```
+
+In both cases, we fail to reject the null hypothesis. We can state that the variable is normally distributed in the population.
+
+::: {.callout-note icon="false"}
+## Task
+
+What plot can we use to ascertain _normality_ for a continuous variable?
+:::
+
+The other test that we will perform, is Bartlett's test. The null hypothesis is that we have equal variance for the continuous variable comparing the two groups. The `bartlett.test` function performs this test. We pass the two variables as argument. The Levene's test is an alternative test that we can use if the data are not normally distributed.
+
+```{r}
+bartlett.test(
+  dfr$age, # Continuous variable
+  dfr$cad # Grouping variable
+)
+```
+
+We fail to reject the null hypothesis and can use an equal variance _t_ test, which is Student's _t_ test. This test is performed using the `t.test` function. Below, we use the `formula` argument, set to `age ~ cad`. This formula states that we want to compares the ages between the two levels of the $\texttt{cad}$ variable. We also set the `var.equal` argument to `TRUE` (as a result of the result from Bartlett's test).
+
+```{r}
+t.test(
+  formula = age ~ cad,
+  data = dfr,
+  alternative = "two.sided", # The default two-sided alternative hypothesis
+  var.equal = TRUE # The default is FALSE and performs Welch's test
+)
+```
+
+The result shows a _t_ statistic of $-3.5407$. Below, we use the `qt` function to determine the (negative) critical _t_ value for $301-2=299$ degrees of freedom and for $\alpha=0.05$.
+
+```{r}
+qt(0.025, 299)
+```
+
+The _t_ statistic is smaller than the critical _t_ value. We also see a _p_ value of $0.0004627$. We have that $p < \alpha$ and we reject the null hypothesis.
+
+We conclude that there is enough evidence in the data at the $5\%$ level of significance to state that there is a difference between the ages of those with and without coronary artery disease.
+
+### Is binary sex associated with coronary artery disease?
+
+Both $\texttt{sex}$ and $\texttt{cad}$ are binary variables. We can use Pearson's $\chi^{2}$ test (also known as the $\chi^{2}$ test of independence) to determine if there is an association between the two variable. The `chisq.test` function performs the analysis. We pass the table of observed values as argument. We set the `correct` argument to `FASLE` so as not to perform Yates' continuity correction.
+
+```{r}
+chisq.test(
+  xtabs(
+    ~ sex + cad,
+    data = dfr
+  ),
+  correct = FALSE
+)
+```
+
+The critical $X^{2}$ statistic is calculate below, using the `qchisq` function for a single degree of freedom and $\alpha=0.05$.
+
+```{r}
+qchisq(0.95, 1)
+```
+
+The $X^{2}$ statistic is much larger than the critical value. We also see a _p_ value that is less than our chosen level of significance.
+
+We will look at a single assumption for the use of our results. We require all the expected values (joint frequencies) to be at least $5$. We do this by using the same test as above, but expressing the `expected` attribute using `$` notation. 
+
+```{r}
+chisq.test(
+  xtabs(
+    ~ sex + cad,
+    data = dfr
+  ),
+  correct = FALSE
+)$expected
+```
+
+All the expected values under the null hypothesis of independence are at least $5$ and the assumption is met.
+
+We can conclude that there is enough evidence in the data at the $5\%$ level of significance to show that the outcome, coronary artery disease, is dependent on binary sex.
+
+The odds ratio can also be expressed as a measure of the association between the two binary variables. If _Male_ is our exposure level and _Yes_ is our disease level, the we can pass the `xtabs` function as argument to the `oddsratio.wald` function from the epitools library.
+
+```{r}
+epitools::oddsratio.wald(
+  xtabs(
+    ~ sex + cad,
+    data = dfr
+  )
+)
+```
+
+We note that the odds for coronary artery disease is $2.475821$ higher in men when compared to women. The $95\%$ confidence interval is $1.344367 - 4.559535$. The odds ratio  of $1$ under the null hypothesis is not in this interval. From this, we can also conclude that there is an association between binary sex and coronary artery disease.
+
+### Is there correlation between age and cholesterol values?
+
+We can do a correlation test or better still, create a linear regression model, with $\texttt{age}$ as explanatory variable and $\texttt{chol}$ as response variable.
+
+Below, we remind ourselves of the mean value for each variable.
+
+```{r}
+# Mean age and cholesterol values
+dfr %>% 
+  summarize(
+    Average_age = mean(age),
+    Average_cholestrol = mean(chol)
+  )
+```
+
+We note that the mean cholesterol value is reported as `NA`. This is because there are missing data for this variable. While many functions in R will deal with missing data by default, this is not so for the `summarize` function in the dplyr library. Instead, we have to specify what to do with the missing data. Below, we simply remove the missing values, setting the `na.rm`  argument to `TRUE`.
+
+```{r}
+dfr %>% 
+  summarize(
+    Average_age = mean(age),
+    Average_cholestrol = mean(chol, na.rm = TRUE)
+  )
+```
+
+We now see the two means.
+
+A linear model is created using `lm` function. The formula states the dependent variable and the dependent variable. The model is assigned to the variable `agechol`, which is passed to the `summary` function.
+
+```{r}
+agechol <- lm(
+  chol ~ age,
+  data = dfr
+)
+
+summary(agechol)
+```
+
+The estimate, $\hat{\beta}_{1}=1.102$. For every $1$ year increase in age, we see an average $1.102$ unit increase cholesterol. The coefficient of determination is only $0.03322$, i.e. the regression model only explains $3.3\%$ of the variation in cholesterol. We do see a _p_ value that is less than $0.05$ and we conclude that there is enough evidence at the $5/%$ level of significance to show that there is a linear association between age and cholesterol value.
+
+### Primary research question
+
+To answer the primary research question, we require a logistic regression model. We start with an omnibus test using a maximum likelihood ratio test to determine if at least one of the explanatory variables are associated with the response variable.
+
+To do this, we require the full model and a nested model, with only the intercept. The `glm` function creates a logistic regression model if the `family` argument is set to `binomial` with the link function set to `"logit"`, the logistic link function.
+
+First, we create a new data.frame object by removing all observations with missing data.
+
+```{r}
+dfr_no_na <- na.omit(dfr)
+```
+
+Below, we create the model.
+
+```{r}
+intercept_model <- glm(
+  cad ~ 1, # Only the intercept
+  data = dfr_no_na,
+  family = binomial(link = "logit")
+)
+
+full_model <- glm(
+  cad ~ age + sex + restbp + chol + maxhr, # All the explanatory variables
+  data = dfr_no_na,
+  family = binomial(link = "logit")
+)
+```
+
+Now we use the `lrtest` function from the lmtest library to conduct the likelihood ratio test.
+
+```{r}
+lmtest::lrtest(
+  intercept_model, # Nested model
+  full_model # Full model
+)
+```
+
+We see a very large test statistic and a _p_ value that is less than $0.05$. We can conclude that there is enough evidence at the $5/%$ level of significance to show that at least one of the explanatory variables is associated with the $\texttt{chol}$ variable.
+
+We use the `summary` function to see the results of the logistic regression model.
+
+```{r}
+summary(full_model)
+```
+
+::: {.callout-note icon="false"}
+## Task
+
+Write a mathematical equation for our model.
+:::
+
+::: {.callout-tip icon="false" collapse="true"}
+## Solution
+
+If $\hat{p}$ is the estimated probability of having coronary artery disease and if $x_{1}$ is $\texttt{age}$, $x_{2}=0$ is _Female_ and $x_{2}=1$ is _Male_, $x_{3}$ is $\texttt{restbp}$, $x_{4}$ is $\texttt{chol}$, and $x_{5}$ is $\texttt{maxhr}$, then our model is as shown in @eq-model.
+
+$$
+\log{\left( \frac{\hat{p}}{1 - \hat{p}} \right)} = -0.58 + 0.02 \, x_{1} + 1.14  \,x_{2} + 0.02 \, x_{3} + 0.01 \, x_{4} -0.04 \, x_{5}
+$$ {#eq-model}
+:::
+
+From the Wald test statistics, we see that there is an association between each of the explanatory variables and the response variable (while adjusting), except for the $\texttt{age}$ variable. We can view the odds ratios by exponentiating the coefficients. The latter can be expressed using the `coefficients` attribute and `$` notation. The `exp` function performs the exponentiation.
+
+```{r}
+exp(full_model$coefficients)
+```
+
+We can also return the confidence intervals ($95/%$ by default) using the `confint` function and passing the model as argument. The `exp` function is once again used to exponentiate the results.
+
+```{r}
+exp(confint(full_model))
+```
+
+We note that the odds ratio of $1$ (under the null hypothesis) is in the confidence interval of the $\texttt{age}$ variable.
+
+## Conclusion
+
+We have used a trivial research example and  question to demonstrate the workflow of a typical research project.
+
+R is capable of working with data, analyzing data, creating plots, and allow us t draw conclusions from a variety of statistical test.
+
+A R markdown file or a Quarto document are ideal tools for creating a computational essay that we can arhive or share with otehrs.

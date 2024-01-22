@@ -1,0 +1,238 @@
+---
+title: Flow Control
+author:
+  - name: Dr Juan H Klopper
+    affiliation: Milken Institute School of Public Health
+title-block-banner: true
+caption-icon: false
+fig-cap-location: top
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: Contents
+    html-math-method: katex
+    code-line-numbers: true
+    embed-resources: true
+    self-contained-math: true
+    theme: sandstone
+---
+
+<p xmlns:cc="http://creativecommons.org/ns#" xmlns:dct="http://purl.org/dc/terms/"><span property="dct:title">This chapter of R for Health Data Science</span> by <span property="cc:attributionName">Dr J H Klopper</span> is licensed under <a href="http://creativecommons.org/licenses/by-nc-nd/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">Attribution-NonCommercial-NoDerivatives 4.0 International<img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1"><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1"><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/nc.svg?ref=chooser-v1"><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/nd.svg?ref=chooser-v1"></a></p>
+
+![](GWU_Logo_Horizontal.png)
+
+## Introduction
+
+R has the ability to control the flow of execution of code. It can loop through code many times, verifying if a condition or conditions are met to decide when to exit repeated code execution. In R, we can also loop though code while a condition or conditions are met. Finally, specific code can be executed if a condition is met.
+
+We are referring to `for` loops, `while` loops, and `if-else` statements. We will explore all of these concepts in this notebook.
+
+When inspecting a `for` loop, as with `while` loops and `if-else` statements, pay close attention to the syntax and use of parentheses and curly braces.
+
+## For loop
+
+A for loop in R is a loop that repeats a set of statements a specified number of times. It is a type of control structure that allows us to repeat a block of code a certain number of times.
+
+Below, we see an example of a for loop in R. The `print` function simply uses the arguments passed to it, to print values to the screen.
+
+```{r}
+for (i in 1:10) {
+  print(i)
+}
+```
+
+A for loop is generated using the `for` statement. The for loop above prints the numbers from $1$ to $10$, as set by the range object, `1:10` (using a default step size of $1$). The for loop starts by setting the value of the numerical object assigned to `i` as $1$. It then executes the code inside the set of curly braces `{}`. In this case, the code inside the loop is `print(i)`, which will print the value of the object assigned to `i` during the current loop.
+
+After the code inside the loop has executed, the loop will increment the value of the object assigned to `i` by $1$ and go back to the beginning of the loop. It will repeat this process until the value if the object assigned to `i` is the last value in the range object at which point the loop will stop.
+
+We can use a for loop to iterate over a sequence of values, such as a vector or a list object, shown in the code chunk below.
+
+```{r}
+for (i in c(1, 3, 5, 7, 9)) {
+  print(i)
+}
+```
+
+In an advanced setting, for loops can be nested. Below, we have an _outside_ loop and an _inside_ loop. The value of the object assigned to `i` starts at $1$ and the so does the value of the object assigned to `j`. The loop then prints the vector `i, j`. The inside loop increments the value of the object assigned to `j` iteratively, until the end of the range at `j=3`. Then `i` increments to $2$, and so on.
+
+```{r}
+for (i in 1:5) {
+  for (j in 1:3) {
+    print(c(i, j))
+  }
+}
+```
+
+It is a good opportunity to introduce the concepts of local and global variables. A global variable is created when we assign an object to a variable. Inside the fors loops we created above, we have a variable, `i`. It is a local variable and does not exist outside of the for loop.
+
+::: {.callout-note icon="false"}
+## Task
+
+Created a nested for loop that loops over the elements of the vector `"Group I", "Group II"` (outside) and the elements of the vector `"Low dose", "High dose"` (inside loop).
+:::
+
+::: {.callout-tip icon="false" collapse="true"}
+## Solution
+
+```{r}
+for (i in c("Group I", "Group II")){
+  for (j in c("Low dose", "High dose")){
+    print(c(i, j))
+  }
+}
+```
+
+:::
+
+## While loop
+
+A while loop in R is a loop that repeats a set of statements as long as a certain condition evaluates to `TRUE`. It is a type of control structure that allows us to repeat a block of code until a certain condition is met.  We see an example of a while loop below.
+
+```{r}
+i <- 1 # The variable i is set outside of the loop and is now a global variable
+while (i <= 10) {
+  print(i)
+  i <- i + 1
+}
+
+```
+
+This while loop prints the numbers from $1$ to $10$. (To shorten the explanation, we will only refer to the value in the variable `i`, instead of the longer _value of the object assigned to the variable_ `i`.)
+
+The while loop starts by accepting the current value of `i`, which is $1$. It then checks if `i` is less than or equal to $10$. If it is (evaluates to `TRUE`), the loop will execute the code inside the curly braces, `{}`. In this case, the code inside the loop is `print(i)`, which will print the value of `i`. After the code inside the loop has executed, the loop will increment the value of `i` by $1$ and go back to the beginning of the loop. It will repeat this process until `i` is greater than $10$, at which point the loop will stop.
+
+The condition that is checked at the beginning of the loop is called the loop condition. It must be a logical expression (a conditional) that evaluates to `TRUE` or `FALSE`. The code inside the loop will be executed as long as the loop condition is `TRUE`.
+
+::: {.callout-note icon="false"}
+## Task
+
+Generate a while loop that prints the values between $0$ and $50$, and increments by a value of $5$.
+:::
+
+::: {.callout-tip icon="false" collapse="true"}
+## Solution
+
+```{r}
+i = 0
+
+while (i <= 50){
+  print(i)
+  i = i + 5
+}
+```
+
+:::
+
+## If-else statements
+
+In R, an if-else statement is a control flow construct that allows us to execute different blocks of code based on a specified condition. Below is an example of how to use if-else. Pay particular attention to the use of curly braces.
+
+```{r}
+x <- 10
+
+if (x > 0) {
+  print("x is positive")
+} else {
+  print("x is not positive")
+}
+```
+
+::: {.callout-note icon="false"}
+## Task
+
+Assign a negative value to the variable `x` and verify that the `print` statement in the else section is executed and not the `print` statement in the if section of the loop.
+:::
+
+::: {.callout-tip icon="false" collapse="true"}
+## Solution
+
+```{r}
+x <- -10
+
+if (x > 0) {
+  print("x is positive")
+} else {
+  print("x is not positive")
+}
+```
+
+:::
+
+In the example above, the condition `x > 0` is checked first. If the condition evaluates to `TRUE`, the code in the first block, `print("x is positive")`, is executed. If the condition evaluates to `FALSE`, the code in the else block, `print("x is not positive")`, is executed.
+
+We can also use multiple if-else statements to check multiple conditions. An example is shown below, introducing the `else if` statement.
+
+```{r}
+x <- 10
+
+if (x > 0) {
+  print("x is positive")
+} else if (x < 0) {
+  print("x is negative")
+} else {
+  print("x is zero")
+}
+```
+
+In this example, the first if statement checks if `x` is greater than zero. If it is, the code in the first block is executed. If it is not, the second else if statement checks if `x` is less than zero. If it is, the code in the second block is executed. If neither of these conditions are met, the code in the else block is executed.
+
+::: {.callout-note icon="false"}
+## Task
+
+Overwrite the variable `x` to hold the value $0$ and determine that the correct code block is executed.
+
+:::
+
+::: {.callout-tip icon="false" collapse="true"}
+## Solution
+
+```{r}
+x <- 0
+
+if (x > 0) {
+  print("x is positive")
+} else if (x < 0) {
+  print("x is negative")
+} else {
+  print("x is zero")
+}
+```
+
+:::
+
+It is important to be careful when using loops such as while loops, as it's easy to create an infinite loop if the loop condition is never met. It's a good idea to include a counter or some other mechanism to ensure that the loop will eventually stop.
+
+We use the `break` statement inside a while loop to exit the loop prematurely. This is an example of including an if statement inside of a loop.
+
+```{r}
+i <- 1
+while (TRUE) {
+  print(i)
+  i <- i + 1
+  if (i > 10) break
+}
+
+```
+
+This while loop above prints the numbers from $1$ to $10$ and then exit the loop. The loop condition is always `TRUE`, so the loop will run indefinitely unless the `break` statement is executed. The break statement is executed when i is greater than 10, causing the loop to stop.
+
+## Conclusion
+
+Loops and if-else statements are very useful and often used in R. Loops and if-else can be combined for more control.
+
+## Lab assignments
+
+[10 points]
+
+### Section 1
+
+[10 points]
+
+Assign the vector object to the variable by executing the code below.
+
+```{r}
+lab_vector <- c("ARDS", "ARDS", "HPT", "HPT", "Diabetes", "Diabetes", "ARDS","Diabetes", "HPT", "HPT")
+```
+
+Instantiate a counter using the variable `n` and assign the value $0$ to it. Loop through `lab_vector` and increment the value in `n` by $1$ if the element in the vector is `"ARDS"`. Finally, print the value in `n` to show how many times `"ARDS"` appears in the vector.

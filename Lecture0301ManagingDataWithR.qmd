@@ -1,0 +1,414 @@
+---
+title: Managing Data with R
+author:
+  - name: Dr J H Klopper
+    affiliation: Milken Institute School of Public Health
+title-block-banner: true
+fig-cap-location: top
+callout-icon: false
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: Contents
+    html-math-method: katex
+    code-line-numbers: true
+    embed-resources: true
+    self-contained-math: true
+    theme: sandstone
+---
+
+<p xmlns:cc="http://creativecommons.org/ns#" xmlns:dct="http://purl.org/dc/terms/"><span property="dct:title">This chapter of R for Health Data Science</span> by <span property="cc:attributionName">Dr J H Klopper</span> is licensed under <a href="http://creativecommons.org/licenses/by-nc-nd/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">Attribution-NonCommercial-NoDerivatives 4.0 International<img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1"><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1"><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/nc.svg?ref=chooser-v1"><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/nd.svg?ref=chooser-v1"></a></p>
+
+![](GWU_Logo_Horizontal.png)
+
+## Introduction
+
+R is a computer language that is designed around data and for data analysis. There are many built-in R functions to generate data, import data, manipulate data, analyze data, and visualize data.
+
+Libraries are external extensions to the R language that brings extra functionality to the language. Libraries are created by users and groups and are provided free of charge as with R itself. It is this selfless sense of community that has made R such a great language for data analysis.
+
+In this notebook, we learn how to import a library called _data.table_. The library adds more functionality when working with data.
+
+## Importing a library
+
+Libraries must be installed before they are used. This can be done using the `install.packages` function and passing the name of the package as a character. Libraries can also be installed using the Packages tab in the right-lower pane of the interface. When this tab is open, the Install button opens a dialog box, where the name of the desired library can be entered for download and install.
+
+The Packages tab also lists the libraries that are installed on a system.
+
+Some libraries have similar function names to each other, or even to built-in functions is R. Such functions *mask* their similarly-named alternatives. In this case we can use the name of the library to indicate which function we are referring to. In this set of notebooks, we use the library name in most cases, so as to show which library a functions originates from.
+
+Below, we import the _data.table_ library. Note the use of flags that suppresses any messages or errors that are printed to the screen. The flags do not export, but can be seen when looking at the raw documents.
+
+```{r Libraries}
+#| message: false
+#| warning: false
+library(data.table)
+```
+
+## Setting working directory
+
+When a markdown file or a Quarto document is created, it can (and must) be saved to the computer drive. It is helpful to save all data files, such as spreadsheet files, to the same folder (directory) as the R file. We can then use the `setwd` function and pass the `getwd` function as argument. The latter returns the folder in which the R file has been saved.
+
+The end-result is that it becomes very easy to refer to a data file when it is imported. We do no have to write the full folder address to the file.
+
+```{r Settign active dierctory}
+setwd(getwd())
+```
+
+## Data import
+
+R does have built-in functions for importing data such as the `read.csv` function. In this notebook, though, we use the `fread` function from the _data.table_ library, because it allows us to work with data in much the same way that we worked with vectors and matrices before and this should feel very familiar.
+
+::: {.callout-note icon="false"}
+## Task
+
+Read up on the `read.csv` function and the resultant data.frame object that is created when importing a spreadsheet file.
+:::
+
+::: {.callout-note icon="false"}
+## Task
+
+Read up about proprietary spreadsheet formats such as `.xlsx` (Microsoft Excel). Find out how they are different from comma-separated values, `csv`, files, and why we prefer the latter.
+:::
+
+The `fread` function in the _data.table_ library imports a data file such as a spreadsheet file. Below, we use it to import a file called `heart_failure.csv` and assign it to the variable `dfr`. Note the use of the name of the library and double colon symbols. This is not required when the library has been imported, but is a good reminder of where a function _comes from_.
+
+(Make sure that the dplyr library is not ticked in the Packages tab in the bottom right panel or that dplyr has been called using the `library` function.)
+
+```{r Data import}
+dfr <- data.table::fread("heart_failure.csv")
+```
+
+The `dfr` object appears in the Environment tab (in the top-right pane). We can view the `dfr` object by using the icon next its name in the pane. We can also use the `View` function to get the same result.
+
+## Metadata
+
+Metadata is data or information about data. Any data object, such as the object that we assigned to the `dfr` variable, has information that we can interrogate.
+
+### Dimensions
+
+The dimensions of a data object is the number of rows and columns contained within it. The `dim` function returns this information.
+
+```{r Dimension of the data frame object}
+dim(dfr)
+```
+
+We see $299$ rows and $13$ columns of data. The `nrow` and `ncol` functions return the number of rows and columns respectively.
+
+```{r Number of observations}
+nrow(dfr)
+```
+
+```{r Number of variables}
+ncol(dfr)
+```
+
+### Variable names
+
+Most data files contain a first row of column headers, which are usually the variable names. Here, we use the name *variable*. It is not to be confused with a computer variable, which is the name we use to assign an object and its value to. When dealing with data, we use the statistical meaning of the term variable. The `names` function returns the names of the column headers / statistical variable names.
+
+```{r Variable names}
+names(dfr)
+```
+
+Note how all the names do not contain illegal characters such as spaces. This makes it much easier when analyzing the data as we will see later.
+
+### Structure
+
+More information about the variables in the data file such the number of non-empty rows and the data type is returned using the `str` function.
+
+```{r Data structure}
+str(dfr)
+```
+
+The different data types are described below.
+
+-   Numerical variables as `num`, `int`
+-   Categorical variables as `chr`
+
+## Variable reference
+
+We use attribute (`$` variable name) notation to reference the data in a column of the data file. Below, we return the values for the $\texttt{age}$ variable. This is only possible because there are no illegal characters in the variable name.
+
+```{r}
+dfr$age
+```
+
+We see a vector of all $299$ age values.
+
+When we use the `str` function before, we noted that some of the variables are character data types. These can be problematic to work with in R. In fact, most statistical analysis require these to be recognized as a factor data type (R notation for the categorical data type). We must convert character data types to factor data types.
+
+The `table` function or the `unique` function can be used to return the unique elements in a character or factor variable. The former also returns the frequency. This is useful if the sample space elements are not known before a conversion is performed. It also helps to find unwanted levels that might have been entered when the data was initially captured.
+
+```{r}
+unique(dfr$anaemia)
+```
+
+The `table` functions adds a frequency to each unique element.
+
+```{r}
+table(dfr$anaemia)
+```
+
+The `xtabs` function is used in a similar fashion, but uses a formula and the keyword argument `data`.
+
+```{r}
+xtabs(
+  ~anaemia,
+  data = dfr
+)
+```
+
+We can also create a contingency table (a table of observed values) that can be used in a Pearson's $\chi^{2}$ test.
+
+```{r}
+table(dfr$anaemia, dfr$death)
+```
+
+Note the syntax that is reuiqred using the `xtabs` function.
+
+```{r}
+xtabs(
+  ~anaemia + death,
+  data = dfr
+)
+```
+
+Below, we convert `chr` types (characters) to factors, for each variable (column header) that is of type character, using the `factor` function. The levels of these categorical variables are listed as a vector for the `levels` argument. Note that in each case, we overwrite the values using assignment (`$` notation). The `factor` variable takes two arguments. The first is a reference to the column whose data type we wish to convert to a factor type and the second is the mentioned `levels` argument.
+
+```{r Convert to factors}
+dfr$anaemia <- factor(dfr$anaemia,
+                     levels = c("No", "Yes"))
+
+dfr$diabetes <- factor(dfr$diabetes,
+                      levels = c("No", "Yes"))
+
+dfr$hypertension <- factor(dfr$hypertension,
+                          levels = c("No", "Yes"))
+
+dfr$sex <- factor(dfr$sex,
+                 levels = c("Female", "Male"))
+
+dfr$smoking <- factor(dfr$smoking,
+                     levels = c("No", "Yes"))
+```
+
+::: {.callout-note icon="false"}
+## Task
+
+We have not converted the $\texttt{death}$ variable to a factor data type yet. Convert the variable using the `factor` function. Remember to re-assign the converted data to the column in the data.frame.
+:::
+
+::: {.callout-tip icon="false" collapse="true"}
+## Solution
+
+```{r}
+dfr$death <- factor(dfr$death,
+                   levels = c("No", "Yes"))
+```
+:::
+
+We now review the structure using the `str` function.
+
+```{r New structure}
+str(dfr)
+```
+
+Each of the character type variables are now factors.
+
+In a data file, we can access specific data values using the address or index of each value. This is similar to the row and column indexing used in spreadsheet software. In spreadsheet software such as Microsoft Excel or Google Forms, we reference the column first and then the row. In most scientific computer languages, though, we use mathematical indexing and reference the row first and then the column.
+
+## Selecting data using indexing
+
+To utilize indexing, we use square bracket notation. The format of values inside the square brackets is always _row value comma column value_. If no comma is used, the single value(s) refer(s) to the row(s).
+
+Below, we pass the single value $3$ to return the third row. This shows all the values for observation $3$.
+
+```{r Third patient}
+dfr[3]
+```
+
+Using a unit range object, we can return contiguous rows. Below, we consider observations $2$ through $4$.
+
+```{r Second third and fourth patient}
+dfr[2:4]
+```
+
+Using a vector, we can specify individual observations. Below, we choose observations (rows) $2$ and $4$.
+
+```{r Observations two and four}
+dfr[c(2, 4)]
+```
+
+The code below returns all the rows, but only for column $1$. Note the absence of a value before the comma. This is interpreted as _all the rows_.
+
+```{r First column only}
+dfr[, 1]
+```
+
+As another example below, we return rows $1$ through $5$ and columns $1$ through $3$.
+
+```{r First five observations and variables one two and three}
+dfr[1:5, 1:3]
+```
+
+::: {.callout-note icon="false"}
+## Task
+
+Select the data for observation $10$, $12$, and $14$, and only for columns $1$ and $4$.
+:::
+
+::: {.callout-tip icon="false" collapse="true"}
+## Solution
+
+```{r}
+dfr[c(10, 12, 14), c(1, 4)]
+```
+:::
+
+Instead of column numbers, we can also return the column names. Below, we select the $\texttt{diabetes}$ and $\texttt{hypertension}$ columns. Note the use of dot notation, a set of parentheses, and no $\$$ symbol.
+
+```{r Diabetes and hypertensions values of observations three through seven}
+dfr[3:7, .(diabetes, smoking)]
+```
+
+::: {.callout-note icon="false"}
+## Task
+
+Select observations $10$, $12$, and $14$ for the $\texttt{hypertension}$ and $\texttt{sex}$ variables.
+:::
+
+::: {.callout-tip icon="false" collapse="true"}
+## Solution
+
+```{r}
+dfr[c(10, 12, 14), .(hypertension, sex)]
+```
+:::
+
+## Selecting data by using conditionals
+
+We can introduce conditionals in the row or column values inside square bracket notation. Below, we only select values in the $\texttt{age}$ variable that are greater than $80$. Since no comma is used, there is no column values and all columns will be included.
+
+```{r Only patients older than 85}
+dfr[age > 80]
+```
+
+Below, we select only the observations with a value for the $\texttt{age}$ variable that are greater than or equal to $85$, and only select the $\texttt{diabetes}$ variable.
+
+```{r Elderly diabetic status}
+dfr[age >= 85, diabetes]
+```
+
+As before, we can also select more than one column by name.
+
+```{r Elderly diabetic and hypertensive status}
+dfr[age >= 85, .(age, diabetes, hypertension)]
+```
+
+::: {.callout-note icon="false"}
+## Task
+
+Select only the observation for which the $\texttt{time}$ variable has a value smaller than or equal to $6$ and display only the data for this variable.
+:::
+
+::: {.callout-tip icon="false" collapse="true"}
+## Solution
+
+```{r}
+dfr[time <= 6, .(time)]
+```
+:::
+
+The `%in%` symbol is a powerful way to select only specified values. Below, we use it to return only observations that are $50$ or $60$ years old . The values are passed as a vector.
+
+```{r Only age 40 50 and 60}
+dfr[age %in% c(50, 60)]
+```
+
+Conditionals can also be used in combination with logical operators. Below, we return only observations for the $\texttt{diabetes}$ variable that is `Yes` __and__ similarly for the $\texttt{hypertension}$ variable that is `Yes`. We also specify the required columns. Note that both conditionals must be met before an observation is included.
+
+```{r Sodium and ejection fraction of diabetics with hypertension}
+dfr[diabetes == "Yes" & hypertension == "Yes", .(diabetes, hypertension, serum_sodium, ejection_fraction)]
+```
+
+Below, we use the logical __or__ operator, `|`. Either values can be `Yes` to include an observation, whereas both had to be `Yes` when we used the logical and operator, `&`, in the previous code chunk. An observation is included if either of the conditionals are met.
+
+```{r Age of diabetics or hypertensives}
+dfr[diabetes == "Yes" | hypertension == "Yes", .(diabetes, hypertension, age)]
+```
+
+::: {.callout-note icon="false"}
+## Task
+
+Select all the observations for which the $\texttt{sex}$ variable is `Female` and the $\texttt{diabetes}$ variable is `No`.
+:::
+
+::: {.callout-tip icon="false" collapse="true"}
+## Solution
+
+```{r}
+dfr[sex == "Female" & diabetes == "No"]
+```
+:::
+
+::: {.callout-note icon="false"}
+## Task
+
+Select all the observations for which the $\texttt{sex}$ variable is `Female` or the $\texttt{diabetes}$ variable is `No`.
+:::
+
+::: {.callout-tip icon="false" collapse="true"}
+## Solution
+
+```{r}
+dfr[sex == "Female" | diabetes == "No"]
+```
+
+Notice how there are now more observations selected.
+:::
+
+## Conclusion
+
+The _data.table_ library allows us to import data from a spreadsheet file and use indexing, conditionals, and logical operators to select only the data that we require.
+
+## Lab assignment
+
+\[20 points\]
+
+### Section 1
+
+\[2 points\]
+
+Determine the unique elements for the $\texttt{smoking}$ variable.
+
+### Section 2
+
+\[2 points\]
+
+Select all the observations for the $\texttt{smoking}$ variable only.
+
+### Section 3
+
+\[4 points\]
+
+Select all the observations only for those who do not smoke.
+
+### Section 4
+
+\[2 points\]
+
+Select the observations in rows $100$ through $110$ and show only the $\texttt{diabetes}$ and $\texttt{smoking}$ variable data.
+
+### Section 5
+
+\[4 point\]
+
+Select all the observations for those who smoked and died.
+
+### Section 6
+
+\[ 6 points\]
+
+Select all the observations for those who were either female or who did not smoke or who has diabetes.

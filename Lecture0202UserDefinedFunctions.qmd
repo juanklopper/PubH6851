@@ -1,0 +1,176 @@
+---
+title: User Defined Functions
+author:
+  - name: Dr J H Klopper
+    affiliation: Milken Institute School of Public Health
+title-block-banner: true
+caption-icon: false
+fig-cap-location: top
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: Contents
+    html-math-method: katex
+    code-line-numbers: true
+    embed-resources: true
+    self-contained-math: true
+    theme: sandstone
+---
+
+<p xmlns:cc="http://creativecommons.org/ns#" xmlns:dct="http://purl.org/dc/terms/"><span property="dct:title">This chapter of R for Health Data Science</span> by <span property="cc:attributionName">Dr J H Klopper</span> is licensed under <a href="http://creativecommons.org/licenses/by-nc-nd/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">Attribution-NonCommercial-NoDerivatives 4.0 International<img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1"><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1"><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/nc.svg?ref=chooser-v1"><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/nd.svg?ref=chooser-v1"></a></p>
+
+![](GWU_Logo_Horizontal.png)
+
+## Introduction
+
+R is a functional language. Many of the keywords are, in fact, functions. Given the appropriate arguments passed to the function inside of a set of parentheses, a function uses the arguments to produce an output.
+
+The `function` keyword in R allows use to create our own functions, termed **user-defined functions**. There is a specific syntax to use when creating a function, and this must be adhered to.
+
+## Creating a user-defined function
+
+To create a function in R, we use the `function` keyword followed by a set of parentheses. Inside the parentheses, we specify the arguments that the function takes. Then, we use a set of curly braces to enclose the body of the function, which is the code that the function will execute when it is called.
+
+Here is an example of a simple function in R that takes a single argument `x` and returns the square of `x`.
+
+```{r}
+square <- function(x) {
+  x^2
+}
+```
+
+We can call this function by using the name of the function followed by the argument or arguments that we want to pass to it in parentheses, the same as with a built-in function in R. Below we pass the value $3$ to the function to calculate $3^{2}$, which returns a value of $9$.
+
+```{r}
+square(3)
+```
+
+We can also specify default values for the arguments in a user-defined function by using the `=` operator. When no value for the argument is passed when the function is called, the default value is used. Below, we use the `paste` function that concatenates characters and the values held in character objects or held in variables. 
+
+```{r}
+greet <- function(name = "User") {
+  paste("Hello,", name, "!")
+}
+```
+
+Below, we call our user-defined function, `greet`, without passing an argument value.
+
+```{r}
+greet() # No argument
+```
+
+::: {.callout-note icon="false"}
+## Task
+
+Call the function `greet` and pass a character argument.
+:::
+
+::: {.callout-tip icon="false" collapse="true"}
+## Solution
+
+```{r}
+greet("Jay")
+```
+
+:::
+
+Intermediate steps can be included in the body of a user-defined function. A final value can be returned using the `return` keyword. Below, we square each of two argument values, before subtracting the squares.
+
+```{r}
+square_difference <- function(a, b) {
+  a_squared = a^2
+  b_squared = b^2
+  
+  return(a_squared - b_squared)
+}
+```
+
+Below, we call the function with the argument values $5$ and $3$, to return the solution $5^{2} - 3^{2} = 16$.
+
+```{r}
+square_difference(5, 3)
+```
+
+::: {.callout-note icon="false"}
+## Task
+
+Determine what happens when we pass the two characters, `"5"` and `"3"` to the `square_difference` function.
+:::
+
+::: {.callout-tip icon="false" collapse="true"}
+## Solution
+
+Character data types cannot be squared or subtracted. We see the error `Error in a^2 : non-numeric argument to binary operator`.
+:::
+
+## Conditionals in a user-defined function
+
+User-defined functions can be very complex. In the example below, we use an if-else statement to determined if one or both of the arguments are not numeric. The `||` operator used below is a logical _or_ statement. If either of the two conditionals returns a `TRUE`, then the if block is executed. The block coerces the relevant argument value to a numerical data type using the `as.numeric` function. The else block (executed if both the arguments are numerical) is simply `NULL`, meaning that nothing is executed.
+
+The `return` keywords still returns the difference between the two squares.
+
+```{r}
+square_difference <- function(a, b) {
+  if ((is.numeric(a) == FALSE) || (is.numeric(b) == FALSE)) {
+    a = as.numeric(a)
+    b = as.numeric(b)
+  }
+  else {
+    NULL
+  }
+  
+  return(a^2 - b^2)
+}
+```
+
+If we now pass to characters `"5"` and `"3"`, then the numerical operation is successfully executed by our function.
+
+```{r}
+square_difference("5", "3")
+```
+
+::: {.callout-note icon="false"}
+## Task
+
+Revisit the `square_difference` user-defined function. Investigate if the `as.numeric` function can be included in the argument list when the function is defined.
+:::
+
+::: {.callout-tip icon="false" collapse="true"}
+## Solution
+
+No. The function below returns the error `Error: unexpected '(' in "square_difference <- function(as.numeric("`.
+
+```
+square_difference <- function(as.numeric(a), as.numeric(b)) {
+  return(a^2 - b^2)
+}
+```
+
+:::
+
+## Conclusion
+
+User-defined functions extend the in-built R functions and allows use to generate bespoke function to solve coding problems.
+
+## Lab assignments
+
+[30 points]
+
+### Section 1
+
+[10 points]
+
+Generate a user-defined function that subtracts two numeric values and squares the difference.
+
+### Section 2
+
+[10 points]
+
+Generate a user-defined function with a single argument that returns the argument as a character type.
+
+### Section 3
+
+Generate a user-defined function that takes a vector as input. Include interim code in the body of the function to hold values for the sum and the length of the argument. The relevant R functions are `sum` and `length`. Use these interim results to determine the mean of the values in the vector.
+
+

@@ -1,0 +1,299 @@
+---
+title: RColorBrewer
+subtitle: Choosing color palettes for plots
+author:
+  - name: Dr J H Klopper
+    affiliation: Milken Institute School of Public Health
+title-block-banner: true
+fig-cap-location: top
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: Contents
+    html-math-method: katex
+    code-line-numbers: true
+    embed-resources: true
+    self-contained-math: true
+    theme: sandstone
+---
+
+<p xmlns:cc="http://creativecommons.org/ns#" xmlns:dct="http://purl.org/dc/terms/"><span property="dct:title">This chapter of R for Health Data Science</span> by <span property="cc:attributionName">Dr J H Klopper</span> is licensed under <a href="http://creativecommons.org/licenses/by-nc-nd/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">Attribution-NonCommercial-NoDerivatives 4.0 International<img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1"><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1"><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/nc.svg?ref=chooser-v1"><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/nd.svg?ref=chooser-v1"></a></p>
+
+![](GWU_Logo_Horizontal)
+
+## Introduction
+
+The choice of colors for a plot is an important decision to make. Certain colors and varieties of colors lend themselves to certain plot and data types. We also have to consider the medium in which our plots will be viewed, either on screen, on a projector, in print, and more. Colorblindness is a common condition and we must chose wisely so as not to exclude viewers from interpreting our plots.
+
+The official [ColoBrewer](https://colorbrewer2.org "Click to visit the page.") website is an interactive web page. There are color sets for three data types. These are sequential data, diverging data, and qualitative data. For each of these choices, ColorBrewer provides a number of color palette choices. A color palette is a set of colors that can be used in a plot.
+
+Each of the data type selections has a maximum number of colors that can be displayed. For sequential data, the maximum number is $8$. There are a maximum of $11$ colors for diverging data and $12$ for qualitative data.
+
+When selecting sequential data, there are options for single-hue (color) and multi-hue color sets. In all data type cases, we can select the colorblind tick-box to exclude palettes that may be difficult to visualize.
+
+RColorBrewer is an R library that provides a color palette generator. It allows you to create color palettes for visualizations in R, such as bar plots, scatter plots, and maps. The package includes a set of predefined color palettes based on the work of Cynthia Brewer, an expert in the field of color perception and color schemes for maps.
+
+## Import the library
+
+We will use the following notebooks in this notebook.
+
+```{r}
+#| message: false
+#| warning: false
+
+library(RColorBrewer)
+library(tibble)
+library(dplyr)
+library(ggplot2)
+```
+
+## View all available color palettes
+
+The `brewer.pal.info` keyword returns a list object of palettes. Below, we express the list using the `head` function. We see a column containing the names of the color palettes, the maximum number of colors in each, the color palette category (sequential, diverging, or qualitative), and a column of Boolean values indicating of the palette is safe for colorblind people.
+
+```{r}
+head(RColorBrewer::brewer.pal.info, 20)
+```
+
+## Visualizing the color palettes
+
+We can view all the palettes using the `display.brewer.all` function. We use the function below and set the `type` argument to the three data types individually.
+
+__ Sequential data__
+
+```{r}
+RColorBrewer::display.brewer.all(type = "seq")
+```
+
+__Divergent data__
+
+```{r}
+RColorBrewer::display.brewer.all(type = "div")
+```
+
+__Qualitative data__
+
+```{r}
+RColorBrewer::display.brewer.all(type = "qual")
+```
+
+We can also specify that we want to omit the palettes that are not colorblind safe. We do so below for the divergent type data, by setting the `colorblindFriendly` argument to `TRUE`. Three of the palettes are removed.
+
+```{r}
+RColorBrewer::display.brewer.all(
+  type = "div",
+  colorblindFriendly = TRUE
+)
+```
+
+We can specify the number of colors we intend to use as well. Below, we specify that our plot will only have three colors and the data are of sequential type.
+
+```{r}
+RColorBrewer::display.brewer.all(
+  3,
+  type = "seq",
+  colorblindFriendly = TRUE
+)
+```
+
+## Visualizing your final choice
+
+When making a final decision on plot colors, we can use the `display.brewer.pal` function to visualize our choice. Below, we visualize the `BrBG` palette for four colors.
+
+```{r}
+RColorBrewer::display.brewer.pal(
+  4,
+  "BrBG"
+)
+```
+
+## Generating data
+
+To use RColorBrewer, we generate data for $200$ observations for each of four variables. There are $26$ levels in the financial class, $\texttt{FinClass}$, qualitative variable, three classes in the $\texttt{Grade}$ sequential variable, and five levels in the Likert scale $\texttt{Survey}$ sequential variable. The age of the participants are in the $\texttt{Age}$ continuous variable.
+
+```{r}
+set.seed(12)
+
+fin_class <- sample(
+  c(LETTERS),
+  size = 200,
+  replace = T
+)
+
+age <- round(
+  rnorm(
+    200,
+    mean = 50,
+    sd = 10
+  ),
+  digits = 0
+)
+
+grades <- sample(
+  c("Low","Medium", "High"),
+  size = 200,
+  replace = T
+)
+
+survey <- sample(
+  1:5,
+  size = 200,
+  replace = T
+)
+
+dfr <- tibble(
+  FinClass = fin_class,
+  Age = age,
+  Grade = grades,
+  Survey = survey
+)
+```
+
+## Sequential and qualitative data visualization
+
+We start by visualizing the distribution of $\texttt{Age}$ values across the three levels of the sequential $\texttt{Grades}$ variable using a box-and-whisker plot. A suitable color palette is the `YlOrRd` palette. We set the ordered levels of the $\texttt{Grades}$ variable and then use the built-in `boxplot` function to create a box plot in @fig-simpleboxplot. We set the `col` argument to the `brewer.pal` function and stipulate $3$ colors and the mentioned palette.
+
+```{r}
+dfr$Grade <- factor(
+  dfr$Grade,
+  levels = c("Low", "Medium", "High")
+)
+```
+
+```{r}
+#| label: fig-simpleboxplot
+#| fig-cap: Simple box-and-whisker plot
+
+boxplot(
+  Age ~ Grade,
+  data = dfr,
+  col = RColorBrewer::brewer.pal(3, "YlOrRd")
+)
+```
+
+There are $26$ different levels in the $\texttt{FinClass}$ qualitative variable. This is many more than the maximum number of colors in the `Set1` color palette. We can extend the number of colors using the `colorRampPalette` function, shown in @fig-extendcolors.
+
+```{r}
+#| label: fig-extendcolors
+#| fig-cap: Extending the number of colors
+
+boxplot(
+  Age ~ FinClass,
+  data = dfr,
+  col = (colorRampPalette(RColorBrewer::brewer.pal(9, "Set1")))(26)
+)
+```
+
+The ggplot2 library allows for a much richer approach to plotting. In the two code chunks below, we recreate the box-and-whisker plots for the sequential and the qualitative variable levels. @fig-ggplotboxplot shows a box-and-whisker plot similar to @fig-simpleboxplot.
+
+```{r}
+#| label: fig-ggplotboxplot
+#| fig-cap: Using ggplot2 to create a box-and-whisker plot
+dfr %>% ggplot2::ggplot(
+  aes(
+    x = Grade,
+    fill = Grade,
+    y = Age
+  )
+) + 
+  ggplot2::geom_boxplot() +
+  ggplot2::scale_fill_brewer(
+    palette = "YlOrRd"
+  ) +
+  labs(
+    title = "Age per grade"
+  ) +
+  ggplot2::xlab("Grade")
+```
+
+The `scale_fill_brewer` function also takes a `direction` argument. When set to $-1$, we can reverse the order of the color palette in @fig-reverseorderbox.
+
+```{r}
+#| label: fig-reverseorderbox
+#| fig-cap: Reversing the order of the colors to reflect the levels of the categorical variable
+
+dfr %>% ggplot2::ggplot(
+  aes(
+    x = Grade,
+    fill = Grade,
+    y = Age
+  )
+) + 
+  ggplot2::geom_boxplot() +
+  ggplot2::scale_fill_brewer(
+    palette = "YlOrRd",
+    direction = -1
+  ) +
+  labs(
+    title = "Age per grade"
+  ) +
+  ggplot2::xlab("Grade")
+```
+
+In @fig-manymore we generate a variable `color_count` to hold the number of unique elements for the $\texttt{FinClass}$ variable in order to extend the number of colors. The number of colors specified in the `brewer.pal` function is used as baseline from which different shades are produced.
+
+```{r}
+#| label: fig-manymore
+#| fig-cap: Extending the number of colors to the number of unique elements in the variable
+
+color_count = length(unique(dfr$FinClass))
+get_palette = colorRampPalette(RColorBrewer::brewer.pal(3, "Set1"))
+
+dfr %>% ggplot2::ggplot(
+  aes(
+    x = FinClass,
+    fill = FinClass,
+    y = Age
+  )
+) + 
+  ggplot2::geom_boxplot() +
+  ggplot2::scale_fill_manual(
+    values = get_palette(color_count)
+  ) +
+  labs(
+    title = "Age per financial class"
+  ) +
+  ggplot2::xlab("Financial class")
+```
+
+::: {.callout-note icon="false"}
+## Task
+
+Consider the data type of the $\texttt{Survey}$ variable a create an appropriate data visualization of the $\texttt{Age}$ variable across the levels of the $\texttt{Survey}$ variable using the ggplot2 library. Reverse the order of the color palette.
+:::
+
+::: {.callout-tip icon="false" collapse="true"}
+## Solution
+
+The $\texttt{Age}$ variable is sequential (ordinal). We use the `Blues` palette. First, though, we set $\texttt{Age}$ as a factor and stipulate the order of the levels.
+
+```{r}
+dfr$Survey <- factor(
+  dfr$Survey,
+  levels = 1:5
+)
+```
+
+The plot is seen in @fig-seqrev.
+
+```{r}
+#| label: fig-seqrev
+#| fig-cap: Solution to task
+dfr %>% ggplot2::ggplot(
+  aes(
+    x = Survey,
+    fill = Survey,
+    y = Age
+  )
+) + 
+  geom_boxplot() +
+  scale_fill_brewer(
+    "Blues",
+    direction = -1
+  )
+```
+:::
+
+
+

@@ -1,0 +1,912 @@
+---
+title: Plotting
+author:
+  - name: Dr J H Klopper
+    affiliation: Milken Institute School of Public Health
+title-block-banner: true
+fig-cap-location: top
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: Contents
+    html-math-method: katex
+    code-line-numbers: true
+    embed-resources: true
+    self-contained-math: true
+    theme: sandstone
+---
+
+<p xmlns:cc="http://creativecommons.org/ns#" xmlns:dct="http://purl.org/dc/terms/"><span property="dct:title">This chapter of R for Health Data Science</span> by <span property="cc:attributionName">Dr J H Klopper</span> is licensed under <a href="http://creativecommons.org/licenses/by-nc-nd/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">Attribution-NonCommercial-NoDerivatives 4.0 International<img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1"><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1"><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/nc.svg?ref=chooser-v1"><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/nd.svg?ref=chooser-v1"></a></p>
+![](GWU_Logo_Horizontal)
+
+## Libraries
+
+```{r}
+#| warning: false
+#| message: false
+library(readr)
+library(dplyr)
+library(ggplot2)
+library(ggthemes)
+library(ggstatsplot)
+```
+
+```{r}
+#| echo: false
+# Working directory
+setwd(getwd())
+```
+
+## Introduction
+
+Data visualization is the process of representing data or information in a graphical or pictorial form. It is an important tool for understanding and communicating data and helps to make sense of large and complex data sets. Data visualization allows us to see patterns, trends, and relationships in data that might not be immediately apparent when looking at raw data. It also helps to identify trends, outliers, and other important features in the data.
+
+There are many different types of data visualizations, including bar charts, line graphs, scatter plots, and pie charts. The choice of visualization depends on the type of data and the story you want to tell with the data.
+
+Data visualization is an important part of data analysis and is used in a variety of fields, including public health and the biomedical sciences.
+
+The R language has built-in functions for data visualization. We will encounter some of the in this notebook, but the emphasis is on the much more powerful ggplot2 library.
+
+## The ggplot2 library
+
+The `ggplot2` library is a data visualization package for the R programming language. It was created by Hadley Wickham and is an implementation of Leland Wilkinson's Grammar of Graphics---a general scheme for data visualization which breaks up graphs into semantic components such as scales and layers. The `ggplot2` library is designed to be easy to use, modular, and extensible. It provides a wide range of statistical and graphical techniques, including linear and nonlinear modeling, classical statistical tests, time-series analysis, classification, and clustering.
+
+With `ggplot2`, you can create a variety of plots including scatterplots, line plots, bar plots, and box plots. You can also customize the appearance of your plots by modifying the themes and aesthetics. ggplot2 is a popular choice for data visualization in R because it is easy to learn and produces publication-quality plots.
+
+## Data
+
+To illustrate the use of the built-in and the ggplot2 plots, we import a data set using the `read_csv` function from the readr library. The file, `PlottingData.csv`, is in the same folder as this Quarto document.
+
+```{r}
+#| message: false
+#| warning: false
+dfr <- readr::read_csv("PlottingData.csv")
+```
+
+We use the `head` function to display the first six observations.
+
+```{r}
+head(dfr)
+```
+
+The data contains information on the age, diastolic blood pressure, c-reactive protein levels, hemoglobin levels, heart rate, diabetes, obesity levels, and grade of comorbid disease for $312$ observations. The binary target variable, $\texttt{Ventilation}$, indicates if a person was mechanically ventilated in the intensive care unit.
+
+## Visualizing continuous data types
+
+When we consider a single continuous numerical data type variable, the best visualization is by using histograms, box-and-whisker or violin plots, and .
+
+When we want to visualize pairs or more numerical variables, the best visualizations are scatter and bubble charts.
+
+### Histogram
+
+A histogram is a graphical representation of the distribution of a data set. It is a graph that displays the frequency or number of observations within specific ranges or bins. The horizontal axis of a histogram represents the range of values in the data, and the vertical axis represents the frequency or count of observations within each range.
+
+Histograms are useful for understanding the shape and spread of a data set and for identifying patterns and trends in the data. They are particularly useful for visualizing continuous data, such as measurements or observations, rather than discrete data, such as counts or categories.
+
+To create a histogram, you first need to choose the range of values or bins to group the data into. You then count the number of observations within each bin and plot the count on the vertical axis. The resulting graph will show you the distribution of the data, with tall bars representing a high frequency of observations and short bars representing a low frequency. You can also use histograms to compare multiple data sets by plotting them on the same graph.
+
+The built-in `hist` function generates a default histogram. We stipulate the data frame object and column name attribute in @fig-firsthist.
+
+```{r}
+#| label: fig-firsthist
+#| fig-cap: Our first plot
+
+hist(
+  dfr$Age
+)
+```
+
+We notice many problems with this plot. First and foremost is the title, which is taken from the data frame object and column attribute. We use the `main` argument to change this, shown in @fig-addtitle.
+
+```{r}
+#| label: fig-addtitle
+#| fig-cap: Adding a title
+
+hist(
+  dfr$Age,
+  main = "Distribution of age values"
+)
+```
+
+Next, we use the `xlab` argument to create a more appropriate label for the horizontal axis. We also use the `ylab` argument to overwrite the current vertical axis label, shown in @fig-addaxestitles.
+
+```{r}
+#| label: fig-addaxestitles
+#| fig-cap: Add labels to the axes
+
+hist(
+  dfr$Age,
+  main = "Distribution of age values",
+  xlab = "Age [years]",
+  ylab = "Count"
+)
+```
+
+The axes ticks can also use some improvement. We use the `las` argument, set to $1$, to print the vertical axis tick marks _upright_. We also use the `xlim` and `ylim` arguments to set better intervals in @fig-axeslimits.
+
+```{r}
+#| label: fig-axeslimits
+#| fig-cap: Set axes limits
+
+hist(
+  dfr$Age,
+  main = "Distribution of age values",
+  xlab = "Age [years]",
+  ylab = "Count",
+  las = 1,
+  xlim = c(20, 90),
+  ylim = c(0, 70)
+)
+```
+
+We can also choose the interval width by using the `breaks` argument. Below, we use the `seq` function to generate a sequence of breaks. We have to increase the limits of the `ylim` argument to accommodate the higher frequency of values in each bin in @fig-binbreaks.
+
+```{r}
+#| label: fig-binbreaks
+#| fig-cap: Set manual breaks for the bins
+
+hist(
+  dfr$Age,
+  main = "Distribution of age values",
+  xlab = "Age [years]",
+  ylab = "Count",
+  las = 1,
+  xlim = c(20, 90),
+  ylim = c(0, 120),
+  breaks = seq(from = 20, to = 90, by = 10)
+)
+```
+
+The ggplot2 library builds a plot step-by-step using tidyverse principles. We will use the magrittr pipe throughout. We start by using the `ggplot` function. The first argument is the aesthetics, `aes`. This stipulates the variables to be used and which below to which axis. To this, we add the type of plot. Note how we build the structure of the plot by adding elements with the `+` symbol. The `geom_hist` function takes the data and creates a histogram with it. We use the `breaks` argument and build a sequence of breaks. Alternatively, we can use the `binwidth` or `bins` arguments. The former states the width of each bin and the latter the number of bins. Depending on the range of values in the variable, these almost never align as well as when we specify the breaks. Finally, we add the `closed` argument. It takes values `"left"` and `"right"`. We use it to specify if the bin intervals are left or right closed. The plot is generated in @fig-firstggplot
+
+```{r}
+#| label: fig-firstggplot
+#| fig-cap: Generic ggplot2 histogram
+
+dfr %>% ggplot2::ggplot(
+  aes(
+    x = Age
+  )
+) + geom_histogram(
+  breaks = seq(from = 20, to = 90, by = 5),
+  closed = "left"
+)
+```
+
+We add a title and subtitle using the `labs` function in @fig-title.
+
+```{r}
+#| label: fig-title
+#| fig-cap: Adding a title and a subtitle
+
+dfr %>% ggplot2::ggplot(
+  aes(
+    x = Age
+  )
+) + geom_histogram(
+  breaks = seq(from = 20, to = 90, by = 5),
+  closed = "left"
+) + labs(
+  title = "Age distribution",
+  subtitle = "Includes the ages of all observations"
+)
+```
+
+In @fig-labelsforaxes we add labels to the axes as well.
+
+```{r}
+#| label: fig-labelsforaxes
+#| fig-cap: Adding a title and a subtitle
+
+dfr %>% ggplot2::ggplot(
+  aes(
+    x = Age
+  )
+) + geom_histogram(
+  breaks = seq(from = 20, to = 90, by = 5),
+  closed = "left"
+) + labs(
+  title = "Age distribution",
+  subtitle = "Includes the ages of all observations"
+) +
+  xlab("Age [years]") +
+  ylab("Frequency")
+```
+
+Themes allow us to create an overall *look* to a plot. The `ggplot2` library themes can be extended using the `ggthemes` library. In @fig-ggthemesexample we use the `theme_fivethirtyeight` theme.
+
+```{r}
+#| label: fig-ggthemesexample
+#| fig-cap: Adding a theme
+
+dfr %>% ggplot2::ggplot(
+  aes(
+    x = Age
+  )
+) + geom_histogram(
+  breaks = seq(from = 20, to = 90, by = 5),
+  closed = "left"
+) + labs(
+  title = "Age distribution",
+  subtitle = "Includes the ages of all observations"
+)  +
+  xlab("Age [years]") +
+  ylab("Frequency") +
+  ggthemes::theme_fivethirtyeight()
+```
+
+In @fig-barcolor we specify the color of the outlines of each bar in the histogram, as well as the fill color.
+
+```{r}
+#| label: fig-barcolor
+#| fig-cap: Specify bar color and the outline color
+#| fig-cap-location: top
+dfr %>% ggplot2::ggplot(
+  aes(
+    x = Age
+  )
+) + geom_histogram(
+  breaks = seq(from = 20, to = 90, by = 5),
+  closed = "left",
+  color = "black",
+  fill = "gray"
+) + labs(
+  title = "Age distribution",
+  subtitle = "Includes the ages of all observations"
+) +
+  xlab("Age [years]") +
+  ylab("Frequency") +
+  ggthemes::theme_fivethirtyeight()
+```
+
+We can even add some statistics to a plot. In @fig-meanstatistics we add a red, dashed vertical line to indicate the mean age.
+
+```{r}
+#| warning: false
+#| message: false
+#| label: fig-meanstatistics
+#| fig-cap: Adding a vertical line to indicate the mean age
+#| fig-cap-location: top
+dfr %>% ggplot2::ggplot(
+  aes(
+    x = Age
+  )
+) + geom_histogram(
+  breaks = seq(from = 20, to = 90, by = 5),
+  closed = "left",
+  color = "black",
+  fill = "gray"
+) + labs(
+  title = "Age distribution",
+  subtitle = "Includes the ages of all observations together with the mean age"
+) +
+  xlab("Age [years]") +
+  ylab("Frequency") +
+  ggthemes::theme_fivethirtyeight() +
+  geom_vline(
+    xintercept = mean(dfr$Age),
+    color = "red",
+    linetype = "dashed",
+    size = 1
+  )
+```
+
+::: {.callout-note icon="false"}
+## Task
+
+Recreate the plot in @fig-meanstatistics to visualize the distribution of the $\texttt{HB}$ variable (indicating the hemoglobin levels of the observations measured in $g\%$. The the breaks to be left-closed and the bin (interval) width to $1$.
+:::
+
+::: {.callout-tip icon="false" collapse="true"}
+## Solution
+
+```{r}
+dfr %>% ggplot2::ggplot(
+  aes(
+    x = HB
+  )
+) + geom_histogram(
+  breaks = seq(from = 0, to = 20, by = 1),
+  closed = "left",
+  color = "black",
+  fill = "gray"
+) + labs(
+  title = "Hemoglobin distribution",
+  subtitle = "Includes all observations together with the mean hemoglobin level"
+) +
+  xlab("Hemoglobin [years]") +
+  ylab("Frequency") +
+  ggthemes::theme_fivethirtyeight() +
+  geom_vline(
+    xintercept = mean(dfr$HB),
+    color = "red",
+    linetype = "dashed",
+    size = 1
+  )
+```
+:::
+
+The ggstatsplots and other similar libraries are very good at producing publication-ready plots. In @fig-ggstatsplotexamplehist we see such a plot as an example of using the `gghistostats` function. The `bf.message` keyword argument is set to `FALSE` to suppress output of Bayesian statistics. This leaves only output for frequentist statistics. The `test.value` keyword argument is set to the value $55$, to indicate the mean under the null hypothesis.
+
+```{r}
+#| label: fig-ggstatsplotexamplehist
+#| fig-cap: Using the ggstatsplots library
+
+dfr %>% ggstatsplot::gghistostats(
+  x = Age,
+  bf.message = F,
+  test.value = 55
+) + 
+  labs(title = "Age distribution of all the participants")
+```
+
+There is more information about the `gghistostats` function [here](https://indrajeetpatil.github.io/ggstatsplot/articles/web_only/gghistostats.html).
+
+The ggplot2 library allows us to generate more than one histogram, grouping a numerical variable by the levels of a categorical variable. In @fig-twogroupshist we see the distribution of ages, grouped by the two $\texttt{Obesity}$ levels. The `position = "idenity"` argument and value plots the two histograms on top of each other.
+
+```{r}
+#| label: fig-twogroupshist
+#| fig-cap: Histogram of age distribution for each obesity level
+
+dfr %>% ggplot2::ggplot(
+  aes(
+    x = Age,
+    color = Obesity
+  )
+) + geom_histogram(
+  breaks = seq(from = 20, to = 90, by = 5),
+  closed = "left",
+  fill = "gray",
+  alpha = 0.2,
+  position = "identity"
+) + labs(
+  title = "Age distribution for each obesity level",
+  subtitle = "Includes the ages of all observations"
+) +
+  xlab("Age [years]") +
+  ylab("Frequency") +
+  ggthemes::theme_fivethirtyeight()
+```
+
+In @fig-twogroupshiststacked, we stack the histograms using the `position = "stack"` argument and value.
+
+```{r}
+#| label: fig-twogroupshiststacked
+#| fig-cap: Stacked histogram of age distribution for each obesity level
+
+dfr %>% ggplot2::ggplot(
+  aes(
+    x = Age,
+    color = Obesity
+  )
+) + geom_histogram(
+  breaks = seq(from = 20, to = 90, by = 5),
+  closed = "left",
+  fill = "gray",
+  alpha = 0.2,
+  position = "stack"
+) + labs(
+  title = "Age distribution for each obesity level",
+  subtitle = "Stacked histogram"
+) +
+  xlab("Age [years]") +
+  ylab("Frequency") +
+  ggthemes::theme_fivethirtyeight()
+```
+
+The `ggstatsplot` library can also produce a comparative histogram using the `grouped_gghistostats` function. In @fig-comphist2 we create a histogram of the `HR` variable grouped by the classes of the `Ventilation` variable.
+
+```{r}
+#| label: fig-comphist2
+#| fig-cap: Using the ggstatsplots library
+
+dfr %>% ggstatsplot::grouped_gghistostats(
+  x = HR,
+  bf.message = F,
+  grouping.var = Ventilation,
+  test.value = 100,
+  plotgrid.args = list(ncol = 2),
+  annotation.args = list(
+    title = "Distribution of heart rate values",
+    caption = "Data grouped by ventilation status"
+  )
+)
+```
+
+### Box-and-whisker plot
+
+A box-and-whisker plot, also known as a box plot, is a graphical summary of a set of quantitative data. It is used to display the distribution of the data, including the median, quartiles, and range. The box plot is a useful tool for comparing different sets of data, identifying outliers, and understanding the spread of the data.
+
+A box plot consists of a box, which represents the interquartile range (IQR), and whiskers, which extend from the box to show the range of the data. The median of the data is represented by a line drawn within the box. The lower and upper quartiles are represented by the lower and upper edges of the box, respectively. The minimum and maximum values of the data are represented by the lower and upper ends of the whiskers, respectively. Outliers, which are data points that are significantly different from the rest of the data, may be plotted separately from the main box plot.
+
+Box plots are widely used in statistics and data analysis to visualize the distribution of data. They are particularly useful for comparing multiple data sets or groups of data.
+
+In @fig-boxwhiskeragediabetes we generate a box-and-whisker plot, showing the distribution of $\texttt{Age}$ for each of the $\texttt{Obesity}$ levels.
+
+```{r}
+#| label: fig-boxwhiskeragediabetes
+#| fig-cap: Age distribution by diabetes class
+
+dfr %>% ggplot2::ggplot(
+  aes(
+    x = Diabetes,
+    fill = Diabetes,
+    y = Age
+  )
+) +
+  geom_boxplot()  +
+  labs(
+    title = "Age distribution of participants",
+    subtitle = "Grouped by diabetes level"
+  ) +
+  ggthemes::theme_economist()
+```
+
+A violin plot is a graphical representation of a data set that combines elements of a box plot and a kernel density plot. It is used to display the distribution of the data, including the median, quartiles, and range, as well as the underlying density of the data.
+
+A violin plot consists of a narrow rectangle with a thicker kernel density plot plotted on the center. The kernel density plot shows the probability density of the data, which is a smoothed version of the histogram of the data. The rectangle represents the interquartile range (IQR) of the data and the median of the data is represented by a line drawn within the rectangle. The lower and upper quartiles are represented by the lower and upper edges of the rectangle, respectively. The minimum and maximum values of the data are represented by the lower and upper ends of the kernel density plot, respectively.
+
+Violin plots are useful for comparing multiple data sets or groups of data and for visualizing the distribution of data. In @fig-violin we show the distribution of $\texttt{Age}$ across the levels of $\texttt{Diabetes}$, using the `geom_violin` geometry.
+
+```{r}
+#| label: fig-violin
+#| fig-cap: Violin plot of age across diabetes levels
+
+dfr %>% ggplot2::ggplot(
+  aes(
+    x = Diabetes,
+    fill = Diabetes,
+    y = Age
+  )
+) +
+  geom_violin(
+    draw_quantiles = c(0.25, 0.5, 0.75)
+  )  +
+  labs(
+    title = "Age distribution of participants",
+    subtitle = "Grouped by diabetes level"
+  ) +
+  ggthemes::theme_economist()
+```
+
+
+::: {.callout-note icon="false"}
+## Task
+
+Create a box-and-whisker plot of the $\texttt{HB}$ variable grouped by the three levels of the $\texttt{Grade}$ variable.
+:::
+
+::: {.callout-tip icon="false" collapse="true"}
+## Solution
+
+```{r}
+dfr %>% ggplot2::ggplot(
+  aes(
+    x = Grade,
+    fill = Grade,
+    y = HB
+  )
+) +
+  geom_boxplot()  +
+  labs(
+    title = "HB distribution of participants",
+    subtitle = "Grouped by comorbid grade of disease levels"
+  ) +
+  ggthemes::theme_foundation()
+```
+:::
+
+## Scatter plots
+
+A scatter plot is a graphical representation of a data set that displays the values of two variables for each data point as a pair of coordinates on a graph. It is used to visualize the relationship between the two variables and to identify patterns and trends in the data.
+
+To create a scatter plot, you plot each data point as a pair of coordinates on a graph, with the value of one variable on the $x$-axis and the value of the other variable on the $y$-axis. The resulting graph will show you the relationship between the two variables, with the slope and direction of the plotted points indicating the strength and type of the relationship.
+
+Scatter plots are particularly useful for visualizing the relationship between two continuous variables, such as measurements or observations. They are also useful for identifying outliers in the data, as points that fall outside the general pattern of the plotted points will be easily visible. Scatter plots are widely used in statistics and data analysis to visualize relationships between variables and to identify patterns and trends in the data.
+
+In @fig-agecrp we plot the $\texttt{Age}$ and $\texttt{CRP}$ pairs for each observation using the `geom_point` geometry.
+
+```{r}
+#| label: fig-agecrp
+#| fig-cap: Age vs. CRP level
+
+dfr %>% ggplot2::ggplot(
+  aes(
+    x = Age,
+    y = CRP
+  )
+) +
+  geom_point(
+    shape = 1,
+    size = 3,
+  ) +
+  labs(
+    title = "Age vs. CRP level",
+    subtitle = "Includes all participants"
+  ) +
+  ggthemes::theme_economist()
+```
+
+A scatter plot can be grouped by the levels of a categorical variable. In @fig-agecrpbyobesity the $\texttt{Age}$ and $\texttt{CRP}$ variables are grouped by the levels of the $\texttt{Obesity}$ variable using the `group` argument. An `aes` argument is now also added to the `geom_point` function. We specify that different colors and marker shapes must be used for each level of the $\texttt{Obesity}$ variable, by setting the `color` and the `shape` arguments.
+
+```{r}
+#| label: fig-agecrpbyobesity
+#| fig-cap: Age vs. CRP level
+
+dfr %>% ggplot2::ggplot(
+  aes(
+    x = Age,
+    y = CRP
+  )
+) +
+  geom_point(
+    aes(
+      color = Obesity,
+      shape = Obesity
+    ),
+    size = 3,
+  ) +
+  labs(
+    title = "Age vs. CRP level",
+    subtitle = "Grouped by obesity level"
+  ) +
+  ggthemes::theme_economist()
+```
+
+In @fig-agecrpbyobesityhr we add a third continuous variable, $\texttt{HR}$. This is done by setting the `size` argument. The sizes of the markers are determined by the values of $\texttt{HR}$.
+
+```{r}
+#| label: fig-agecrpbyobesityhr
+#| fig-cap: Age vs. CRP level
+
+dfr %>% ggplot2::ggplot(
+  aes(
+    x = Age,
+    y = CRP
+  )
+) +
+  geom_point(
+    aes(
+      color = Obesity,
+      size = HR
+    ),
+    shape = 16,
+    alpha = 0.5
+  ) +
+  scale_color_manual(values=c('#E69F00', '#56B4E9')) +
+  labs(
+    title = "Age vs. CRP level grouped by obesity level",
+    subtitle = "Marker size indicates heart rate"
+  ) +
+  ggthemes::theme_clean()
+```
+
+::: {.callout-note icon="false"}
+## Task
+
+Create a scatter plot showing $\texttt{CRP}$ and $\texttt{HB}$ levels for each of the levels of the $\texttt{Grade}$ variable. Set a uniform marker size and produce a unique color for each level of the $\texttt{Grade}$ variable.
+:::
+
+::: {.callout-tip icon="false" collapse="true"}
+## Solution
+
+```{r}
+dfr %>% ggplot2::ggplot(
+  aes(
+    x = CRP,
+    y = HB
+  )
+) +
+  geom_point(
+    aes(
+      color = Grade
+    ),
+    shape = 16,
+    size = 5,
+    alpha = 0.5
+  ) +
+  scale_color_manual(values=c('#E69F00', '#56B4E9', '#994352')) +
+  labs(
+    title = "CRP vs. HB levels grouped by grade level"
+  ) +
+  ggthemes::theme_clean()
+```
+:::
+
+The `ggscatterstats` function from the ggstatsplot library creates a publication ready plot that adds a histogram in the margin for each of the two continuous variables. The subtitle in @fig-ggscatterstat also includes results for frequentest inference.
+
+```{r}
+#| label: fig-ggscatterstat
+#| fig-cap: Using the ggstatsplot library
+#| message: false
+#| warning: false
+
+ggstatsplot::ggscatterstats(
+  dfr,
+  Age,
+  CRP,
+  bf.message = F
+)
+```
+
+## Plotting for categorical data
+
+For categorical data we visualize the frequency of the sample space elements of a variable. The most commonly used plots are bar plots. They can be set to indicate frequency or relative frequency. Bar plot can also be used to visualize more than one categorical variable.
+
+Pie charts can be used to visualize relative frequency too. Due the the difficulty in perceiving small differences in the proportions of slices of a pie chart, they are not recommended as useful plot types to visually represent data accurately.
+
+### Bar plot
+
+In @fig-simplebar we create a simple bar plot, showing the frequency of the three levels of the $\texttt{Obesity}$ variable. Notice the one major visual difference between a histogram and a bar plot. In the latter, the rectangles as separated from each other. The separation is to indicate that the values of a categorical variable are not a continuum. In a histogram, the bars are contiguous, providing a visual representation of a continuous variable.
+
+```{r}
+#| label: fig-simplebar
+#| fig-cap: A simple bar chart
+
+dfr %>% ggplot2::ggplot(
+  aes(
+    x = Diabetes,
+  )
+) +
+  ggplot2::geom_bar() +
+  labs(
+    title = "Distriburtion of diabetes levels"
+  ) +
+  xlab("Diabetes variable levels") +
+  ylab("Frequency") +
+  ggthemes::theme_economist_white()
+
+```
+
+The rectangles can be filled differently for each level of the categorical variable. Default colors are chosen in @fig-simplebarfilled.
+
+```{r}
+#| label: fig-simplebarfilled
+#| fig-cap: A simple bar chart
+
+dfr %>% ggplot2::ggplot(
+  aes(
+    x = Diabetes,
+    fill = Diabetes
+  )
+) +
+  ggplot2::geom_bar() +
+  labs(
+    title = "Distriburtion of diabetes levels"
+  ) +
+  xlab("Diabetes variable levels") +
+  ylab("Frequency") +
+  ggthemes::theme_economist_white()
+```
+
+We can manually select colors using the `scale_fill_manual` function. The `values` argument takes a vector of hexademical values. The plot is shown in @fig-colorspecify.
+
+```{r}
+#| label: fig-colorspecify
+#| fig-cap: Specifying individual colors
+
+dfr %>% ggplot2::ggplot(
+  aes(
+    x = Diabetes,
+    fill = Diabetes
+  )
+) +
+  ggplot2::geom_bar() +
+  ggplot2::scale_fill_manual(
+    values = c(
+      "#999999", "#999999", "#EEAAAA"
+    )
+  ) +
+  labs(
+    title = "Distriburtion of diabetes levels"
+  ) +
+  xlab("Diabetes variable levels") +
+  ylab("Frequency") +
+  ggthemes::theme_economist_white()
+```
+
+The `stat` argument for the `geom_box` function is set the `bin` by default. It can also be set to `idenity`. This sums a numerical variable, for which we have to provide the values. In @fig-barplotidentity we provide a value for the `y` argument in the `aes` statement.
+
+```{r}
+#| label: fig-barplotidentity
+#| fig-cap: Adding values for the vertical axis
+
+dfr %>% ggplot2::ggplot(
+  aes(
+    x = Obesity,
+    y = Age,
+    fill = Obesity
+  )
+) +
+  ggplot2::geom_bar(
+    stat = "identity"
+  )  +
+  labs(
+    title = "Sum of ages for each level of obesity"
+  ) +
+  xlab("Obesity variable levels") +
+  ylab("Frequency") +
+  ggthemes::theme_economist_white()
+```
+
+A second categorical variable can be added to the data visualization. In @fig-barplotdodge we visualize both the $\texttt{Diabetes}$ and the $\texttt{Obesity}$ categorical variables. The `position` argument is set to `dodge`. This creates bars that are next to each other. When the number of levels are small, we can distinguish the frequencies relative to each other with ease.
+
+```{r}
+#| label: fig-barplotdodge
+#| fig-cap: Bar plot with second categorical variable in dodge position
+
+dfr %>% ggplot2::ggplot(
+  aes(
+    x = Diabetes,
+    fill = Obesity
+  )
+) +
+  ggplot2::geom_bar(
+    position = "dodge"
+  ) +
+  labs(
+    title = "Frequency of obesity levels per diabetes levels"
+  ) +
+  ylab("Frequency") +
+  ggthemes::theme_excel_new()
+```
+
+The bars can also be stacked, shown in @fig-barplotstack, where we set the `position` argument to `"stack"`. Stacking makes it difficult to interpret the absolute frequency of the the bars that are not at the bottom of the stacks. Stacking introduces the same problems that we have with pie charts.
+
+```{r}
+#| label: fig-barplotstack
+#| fig-cap: Bar plot with second categorical variable in stack position
+
+dfr %>% ggplot2::ggplot(
+  aes(
+    x = Diabetes,
+    fill = Obesity
+  )
+) +
+  ggplot2::geom_bar(
+    position = "stack"
+  ) +
+  labs(
+    title = "Frequency of obesity levels per diabetes levels"
+  ) +
+  ylab("Frequency") +
+  ggthemes::theme_excel_new()
+```
+
+In @fig-barplotstack it is still possible to consider the top of the stacked bars as visual representation of the frequency of the levels of the variable on the horizontal axis. In @fig-barplotfill we set the `position` argument to `"fill"`. The bars fill all of the vertical space and we can only consider proportions.
+
+```{r}
+#| label: fig-barplotfill
+#| fig-cap: Bar plot with second categorical variable in fill position
+
+dfr %>% ggplot2::ggplot(
+  aes(
+    x = Diabetes,
+    fill = Obesity
+  )
+) +
+  ggplot2::geom_bar(
+    position = "fill"
+  ) +
+  labs(
+    title = "Proportion of obesity levels per diabetes levels"
+  ) +
+  ylab("Frequency") +
+  ggthemes::theme_excel_new()
+```
+
+There is no need to have the joint frequencies on the same plot. The `facet_warp` function creates separate plots for the levels of the specified variable. In @fig-barplotfacetcol the `vars` argument is set to `Obesity` so that we have separate plots for each of the levels of the $\texttt{Obesity}$ levels. The short-hand syntax `~Obesity` can also be used. The `ncol` argument indicates the number of columns, each which will contain a plot. The value is set to the number of unique elements of the $\texttt{Obesity}$ variable. The `strip-position` argument is set to `"left"`. This prints the specific levels of the $\texttt{Obesity}$ variable on the left of each plot instead of at the top.
+
+```{r}
+#| label: fig-barplotfacetcol
+#| fig-cap: Bar plot with second categorical variable in fill position
+
+dfr %>% ggplot2::ggplot(
+  aes(
+    x = Diabetes,
+    fill = Diabetes
+  )
+) +
+  ggplot2::geom_bar() + 
+  ggplot2::facet_wrap(
+    vars(Obesity),
+    ncol = 2,
+    strip.position = "left"
+  ) +
+  labs(
+    title = "Frequency of obesity levels per diabetes levels"
+  ) +
+  ylab(NULL) + # Set to NULL to allow for variable levels
+  ggthemes::theme_excel_new()
+```
+
+In @fig-barplotfacetrow the `nrow` argument is used to produce two plots in vertical orientation. The `labeller` argument overwrites the values of the levels.
+
+```{r}
+#| label: fig-barplotfacetrow
+#| fig-cap: Bar plot with second categorical variable in fill position
+
+dfr %>% ggplot2::ggplot(
+  aes(
+    x = Diabetes,
+    fill = Diabetes
+  )
+) +
+  ggplot2::geom_bar() + 
+  ggplot2::facet_wrap(
+    vars(Obesity),
+    nrow = 2,
+    strip.position = "left",
+    labeller = as_labeller(c(No = "Frequency for normal weight", Yes = "Frequency for obesity"))
+  ) +
+  labs(
+    title = "Frequency of obesity levels per diabetes levels"
+  ) +
+  ylab(NULL) +
+  xlab("Diabetes") +
+  ggthemes::theme_excel_new()
+```
+
+::: {.callout-note icon="false"}
+## Task
+
+Create a bar plot for each of the levels of the $\texttt{Grade}$ variable, stacked in rows. Let each plot show the frequencies of the $\texttt{Obesity}$ variable levels.
+:::
+
+::: {.callout-tip icon="false" collapse="true"}
+## Solution
+
+```{r}
+dfr %>% ggplot2::ggplot(
+  aes(
+    x = Obesity,
+    fill = Obesity
+  )
+) +
+  ggplot2::geom_bar() + 
+  ggplot2::facet_wrap(
+    vars(Grade),
+    nrow = 3,
+    strip.position = "top",
+    labeller = as_labeller(c(
+      I = "Frequency for grade I",
+      II = "Frequency for grade II",
+      III = "Frequency for grade III"
+    ))
+  ) +
+  labs(
+    title = "Obesity levels per grade of disease levels"
+  ) +
+  ylab(NULL) +
+  ggthemes::theme_excel_new()
+```
+:::
+
+## Conclusion
+
+The ggplot2 library is perhaps to most-used plotting library in statistics and data science. The types of plots and how to customize them are near endless.
+
+Many other plotting libraries exist. You are urged to read up on some of them.
+
+## Lab assignmnemt
+
+[40 points]
+
+### Section 1
+
+[10 points]
+
+Select one numerical and one categorical variable in the data set imported in this notebook and generate a box-and-whisker plot that has not been created as example in this notebook.
+
+### Section 2
+
+[10 points]
+
+Select two numerical variables and a categorical variable and create a scatter plot (grouped by the levels of the categorical variable) that has not been created as example in this notebook.
+
+### Section 3
+
+[20 points]
+
+Look up what a mosaic plot is. Import an appropriate library and create a mosaic plot of the variables $\texttt{Ventilation}$ and $\texttt{Obesity}$.

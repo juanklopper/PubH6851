@@ -1,0 +1,629 @@
+---
+title: Managing Data with the Tidyverse
+author:
+  - name: Dr J H Klopper
+    affiliation: Milken Institure School of Public Health
+title-block-banner: true
+callout-icon: false
+format:
+  html:
+    toc: true
+    toc-depth: 3
+    toc-title: Contents
+    html-math-method: katex
+    code-line-numbers: true
+    code-copy: true
+    embed-resources: true
+    self-contained-math: true
+    theme: sandstone
+---
+
+<p xmlns:cc="http://creativecommons.org/ns#" xmlns:dct="http://purl.org/dc/terms/"><span property="dct:title">This chapter of R for Health Data Science</span> by <span property="cc:attributionName">Dr J H Klopper</span> is licensed under <a href="http://creativecommons.org/licenses/by-nc-nd/4.0/?ref=chooser-v1" target="_blank" rel="license noopener noreferrer" style="display:inline-block;">Attribution-NonCommercial-NoDerivatives 4.0 International<img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/cc.svg?ref=chooser-v1"><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/by.svg?ref=chooser-v1"><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/nc.svg?ref=chooser-v1"><img style="height:22px!important;margin-left:3px;vertical-align:text-bottom;" src="https://mirrors.creativecommons.org/presskit/icons/nd.svg?ref=chooser-v1"></a></p>
+
+![](GWU_Logo_Horizontal.png)
+
+## Introduction
+
+Hadley Wickham and others at Posit introduced the tidyverse principles of managing and working with data. Some view the principles of the tidyverse as a dialect of R.
+
+The tidyverse is a collection of R libraries that are designed to work together to make data manipulation, analysis, and visualization easier. The packages in the tidyverse have a consistent interface and are designed to work together seamlessly. The main libraries in the tidyverse include the following.
+
+1. _dplyr_: a package for manipulating and summarizing data
+2. _ggplot2_: a package for creating graphs and charts
+3. _tidyr_: a package for tidying data and reshaping it into a form that is easier to work with
+4. _readr_: a package for reading and writing data from various formats
+5. _purrr_: a package for working with functions and iterations
+6. _tibble_: a package for creating and working with data frames
+7. _stringr_: a package for working with strings
+8. _forcats_: a package for working with factors (categorical variables)
+
+The tidyverse is a popular choice for data analysis and visualization because it provides a wide range of tools that are easy to use and can be combined in a variety of ways to achieve a wide range of tasks.
+
+The libraries in the tidyverse require tidy data.
+
+## Tidy data
+
+The __tidy data__ standard stipulates a standard way of organizing data values within a data set. The concept of tidy data was introduced by the same Hadley Wickham in his paper _Tidy Data_ (2014). According to Wickham, a data set is considered tidy if it meets the following criteria.
+
+1. Each variable forms a column
+2. Each observation forms a row
+3. Each type of observational unit forms a table
+
+In other words, tidy data is organized in a way that makes it easy to perform data manipulation and visualization. Tidy data allows us to see the relationships between different variables, and it simplifies data analysis techniques.
+
+When designing a data collection tool for a research project, it is best practice to follow tidy data standards. The principles can be applied to spreadsheet files and to databases. In the case of the latter, we must also consider database normalization.
+
+::: {.callout-note}
+## Task
+
+Search online and read more about database normalization.
+
+:::
+
+We start this notebook, by importing some of the tidyverse libraries.
+
+## Libraries
+
+Below, we import the readr and the dplyr libraries.
+
+```{r}
+# Library import
+#| message: false
+#| warning: false
+library(readr)
+library(dplyr)
+library(DT)
+```
+
+It is better to complete all work related to a project in a RStudio Project, which is created using the File menu. We set the active working directory to be the folder in which this notebook is saved and which contains our project file.
+
+```{r}
+# Setting the working directory
+setwd(getwd())
+```
+
+## Data import
+
+The data that we will use in this notebook a spreadsheet file. It is in `csv` format and we import it with the `read_csv` function from the readr library.
+
+```{r}
+#| message: false
+#| warning: false
+# Importing a csv file
+dfr <- readr::read_csv("heart_failure.csv")
+#dfr <- readr::read_csv(file.choose())
+```
+
+Unlike the built-in `read.csv` function that generates a data.frame data object, the `read_csv` function from the dplyr library returns a tibble object.
+
+::: {.callout-note icon="false"}
+## Task
+
+Read up on tibble objects in the tidyverse.
+:::
+
+::: {.callout-tip icon="false" collapse="true"}
+## Solution
+
+There are numerous resources on the internet about tibble objects in the tidyverse. As summary we can state the following.
+
+In R, a tibble is a type of data object, similar to a data.frame object in base R. A tibble is a modern re-imagining of the data.frame object that is optimized for simplicity and consistency. Tibbles are part of the tidyverse ecosystem of libraries, which are designed to make data manipulation and visualization in R easier and more consistent.
+
+Tibbles have several key features.
+
+1. They use a consistent printing method that never trims the output and always shows all rows and columns
+2. They never convert strings to factors, making them easier to work with for tasks such as text processing
+3. They use the pipe operator, `%>%`, from the magrittr library to chain together multiple data manipulation steps, making it easier to write concise, readable code.
+
+To create a tibble, you can use the `tibble` function after importing the _tibble_ library.
+
+```{r}
+#| message: false
+#| warning: false
+library(tibble)
+
+my_tibble <- tibble::tibble(
+  x = 1:5,
+  y = 6:10
+)
+```
+
+We can also convert an existing data.frame to a tibble using the `as_tibble` function.
+
+```{r}
+my_data_frame = data.frame(
+  x = 1:5,
+  y = 6:10
+)
+
+my_tibble = tibble(
+  my_data_frame
+)
+```
+
+:::
+
+As before, we interrogate the metadata for the `dfr` object using the `dim`, `nrow`, `ncol`, and `str` functions
+
+```{r}
+# Dimensions of dfr
+dim(dfr)
+```
+
+```{r}
+# Number of rows
+nrow(dfr)
+```
+
+```{r}
+# Number of columns
+ncol(dfr)
+```
+
+```{r}
+# Structure
+str(dfr)
+```
+
+We note the data types specified for each of the variables. The `dfr` variable object is a list object.
+
+```{r}
+# R data type of the object assigned to the dfr variable
+typeof(dfr)
+```
+
+The `head` function returns the first six rows of data.
+
+```{r}
+head(dfr)
+```
+
+We can change the default six rows by passing a number as second argument. Below, we specify three rows.
+
+```{r}
+head(dfr, 3)
+```
+
+There is also a `tail` function.
+
+```{r}
+tail(dfr)
+```
+
+The `head` or `tail` functions are good to use after importing data in order to verify that the import was correct.
+
+We remember that elements of list objects have names. In this case, it is the column (header) names, which were named for the statistical variables when this data were collected.
+
+## Indexing
+
+We use the attribute, `$`, notation to select a specific column. Below, we return the values of the $\texttt{age}$ variable.
+
+```{r}
+# Select the age column
+dfr$age
+```
+
+As with the _data.table_ library, we can also use square bracket notation. Below, we return the age of the fifth observation.
+  
+```{r}
+# Age of the fifth observation
+dfr$age[5]
+```
+
+With a unit range object, we can select contiguous observations.
+
+```{r}
+# First 5 age values
+dfr$age[1:5]
+```
+
+When using vectors, we can specify the observation directly.
+
+```{r}
+# Ages of observations 1 and 5
+dfr$age[c(1, 5)]
+```
+
+When we pass a single indexing argument such as `c(1, 5)` in the previous code chunk, we always reference the rows. Passing two indexing arguments, they always refer to the row and then the column. Instead of using the `$` notation, we can use indexing to specify columns.
+
+We start by adding a comma, but passing no actual second argument. This _empty_ second argument is read by R to mean _show all the columns_.
+
+```{r}
+dfr[c(1, 5), ]
+```
+
+Below, we request rows $1$ and $5$ and columns $1$ and $3$.
+
+```{r}
+dfr[c(1,5), c(1, 3)]
+```
+
+::: {.callout-note}
+## Task
+
+Return rows $2$ through $20$ for columns $5$ through $10$.
+
+:::
+
+::: {.callout-tip collapse="true"}
+## Solution
+
+We use a range object to return the required data.
+
+```{r}
+dfr[2:20, 5:10]
+```
+
+:::
+
+::: {.callout-note}
+## Task
+
+Return every second row from rows $1$ through $19$ for the $\texttt{age}$ column (variable).
+
+:::
+
+::: {.callout-tip collapse="true"}
+## Solution
+
+We use the `seq` function to create a vector of the required indices.
+
+```{r}
+dfr$age[seq(1, to = 19, by = 2)]
+```
+
+:::
+
+Instead of using indexing, we can select (and change) data using the dplyr library.
+
+## Using the dplyr library
+
+The _dplyr_ library follows tidyverse principles. The principles are designed to make reading, writing, and comprehending the code as easy as using the English language. To this end, the functions in the _dplyr_ library are called __verbs__. We interrogate some of these verbs below.
+
+### The `filter` verb
+
+The `filter` verb is used to select data using conditionals. Below, we filter only the observations for which the $\texttt{death}$ variable has a value of _No_. The first argument is the name of the data object and the second is the conditional.
+
+```{r}
+# Filter only for the survivors
+filter(dfr, death == "No")
+```
+
+The tidyverse pipe operator, `%>%`, is part of the _magrittr_ library and is imported when we import the _dplyr_ library. It is a very useful operator. Below, we start with the data object and then _pass it to_ the `filter` verb. The `%>%` pipe, in effect, places the `dfr` in the first position of the `filter` verb.
+
+```{r}
+# Using the pipe operator
+dfr %>% 
+  filter(death == "No")
+```
+
+The code above does indeed read like an English sentence: _Take the_ `dfr` _data object and filter only for those cases where the_ $\texttt{death}$ _variable has the value No_.
+
+Below, we see another example of the pipe operator and the `filter` verb. This time, we filter only for observations that are older than $80$.
+  
+```{r}
+# Filter only Age data point values larger than 80
+dfr %>% 
+  filter(age > 80)
+```
+
+In another example below, we select only those with diabetes.
+
+```{r}
+# Filter only for those with diabetes
+dfr %>% 
+  filter(diabetes == "Yes") # Note double equal symbol
+```
+
+::: {.callout-note}
+## Task
+
+Filter only for those with an value of less than or equal to $20$ in the $\texttt{ejection\_fraction}$ column.
+:::
+
+::: {.callout-tip collapse="true"}
+## Solution
+
+```{r}
+dfr %>% 
+  filter(ejection_fraction <= 20)
+```
+
+:::
+
+With the `filter` verb, we can use more than one conditional. Each is written in a set of parentheses. They are combined using the logical _and_ or the logical _or_, depending on our filtering requirements.
+
+Below, we filter the data object only for observations that are older than or equal to $85$ years __and__ have hypertension.
+
+```{r}
+# Filter for the elderly with hypertension
+dfr %>% 
+  filter((age >= 85) & (hypertension == "Yes"))
+```
+
+Below, we filter using a logical or, $|$. An observation is included if either conditional returns a `TRUE` value.
+
+```{r}
+# Filter for elderly or diabetics
+dfr %>% 
+  filter((age > 85) | (diabetes == "Yes"))
+```
+
+::: {.callout-note icon="false"}
+## Task
+
+Filter only for the observations who were diabetic and who died.
+:::
+
+::: {.callout-tip icon="false" collapse="true"}
+## Solution
+
+```{r}
+dfr %>% 
+  filter((diabetes == "Yes") & (death == "Yes"))
+```
+
+:::
+
+### The `select` verb
+
+The `select` verb allows us to select specified columns. Below, we select only the $\texttt{age}$ variable.
+
+```{r}
+# Select only the age variable
+dfr %>% select(age)
+```
+
+We note that the `select` verb returns a tibble object. We can, instead, return a vector object, by _piping_ the selected column to the `pull` function.
+  
+```{r}
+# Age as a vector
+dfr %>% 
+  select(age) %>% 
+  pull()
+```
+
+This is a good opportunity to review what the pipe operator is doing. We mentioned that it passes what comes before it, as first argument to what follows it. We can then _deconstruct_ the code above and rewrite it as below.
+
+```{r}
+# Using a more conventional approach to coding in R
+pull(select(dfr, age))
+```
+
+It should be clear how using the pipe operator is more convenient and allows for more readable code.
+
+We can use the `filter` and the `select` verbs in combination. We filter the data first using a conditional and then we select the required columns. We can select more than one column, by specifying them with separation by a comma. Below, we filter only for those observations that are older than $80$ and who died and then select the $\texttt{diabetes}$ and $\texttt{hypertension}$ variables.
+
+```{r}
+# Diabetes and hypertension values for the elder who died
+dfr %>% 
+  filter((age >= 80) & (death == "Yes")) %>% 
+  select(diabetes, hypertension)
+```
+
+::: {.callout-note icon="false"}
+## Task
+
+Filter for observations that are younger than or equal to $50$ years old, with diabetes, and display the $\texttt{smoking}$ and the $\texttt{sex}$ variables.
+:::
+
+::: {.callout-tip icon="false" collapse="true"}
+## Solution
+
+```{r}
+dfr %>% 
+  filter((age <= 50) & (diabetes == "Yes")) %>% 
+  select(smoking, sex)
+```
+
+:::
+
+### The `mutate` verb
+
+The `mutate` verb allows us to create new columns in our data object. The `mutate` verb can include a formula that combines or changes one or more of the other variables. Below, we create a new variable, $\texttt{age_months}$. Our formula takes the values of the $\texttt{age}$ variable and multiplies it by $12$, converting years to months. The new variable is not added permanently.
+  
+```{r}
+# Creating a new variable expressing age in months
+dfr %>% 
+  mutate(age_months = age * 12)
+```
+
+To add the new variable permanently, we overwrite the `dfr` variable.
+
+```{r}
+# Overwrite data object to make permanent changes
+dfr <- dfr %>% 
+  mutate(age_months = age * 12)
+```
+
+::: {.callout-note icon="false"}
+## Task
+
+If the $\texttt{time}$ variable has values expressed in hours, generate a new variable named $\texttt{time_day}$ that converts the hours into fractions of a days. Make the new variable a permanent addition to the data object `dfr`.
+:::
+
+::: {.callout-tip icon="false" collapse="true"}
+## Solution
+
+```{r}
+dfr <- dfr %>% 
+  mutate(time_day = time / 24)
+```
+
+:::
+
+We can be very creative with the `mutate` verb. As illustrative example, we incorporate the `cut` function in the code below. The `cut` function takes a numerical vector and divides the vectors into equal parts (we specify $3$ parts below). This is a process called _binning_. We also use the `labels` argument to give a name to each of the three bins. The new variable, $\texttt{platelet_group}$, will then have three levels. (Note that the division into the three bins is not physiological with respect to the levels _Low_, _Normal_, and _High_.)
+
+```{r}
+# New variable by binning
+dfr <- dfr %>% 
+  mutate(platelets_group = cut(dfr %>% select(platelets) %>% pull(), # Must be a vector
+                               3,
+                               labels = c("Low", "Normal", "High")))
+```
+
+The `case_when` function can be incorporated into the `mutate` verb. It acts as an if-else statement. Below, we revisit the $\texttt{platelets}$ variable. A physiological normal range would be $150000$ to $400000$ platelets per $\mu L$. Below, we use the `case_when` function and conditionals. The `~` symbols allows us to provide a name for the bins that the conditionals create.
+
+```{r}
+dfr <- dfr %>% 
+  mutate(platelets_group = case_when(
+    platelets < 150000 ~ "Low",
+    platelets > 450000 ~ "High",
+    platelets >= 150000 & platelets <= 450000 ~ "Normal"
+  ))
+```
+
+
+## Creating new data frames by selection
+
+At times it may be convenient to filter a data object (perhaps selecting only specified variables and / or mutating the original) and simply creating a brand new tibble object by assignment. We note such as example below.
+  
+```{r}
+# New data frame object of those who died
+dfr_died <- dfr %>% 
+  filter(death == "Yes")
+```
+
+```{r New adta frame object of those who survived}
+dfr_survived <- dfr %>% 
+  filter(death == "No")
+```
+
+## Data summaries using the `summarize` verb and grouping using the `group_by` verb
+
+The `summarize` verb allows us to create and name specified summary statistics. Below, we filter only those who are diabetics and then calculate their mean age. We have to name the summary statistic. In this case, we use the name `mean_age_diabetic`. We return the mean as a vector using the `pull` function.
+
+```{r}
+# Mean age of diabetics
+dfr %>% 
+  filter(diabetes == "Yes") %>% 
+  summarise(
+    mean_age_diabetic = mean(age)
+  ) %>% 
+  pull()
+```
+
+::: {.callout-note icon="false"}
+## Task
+
+Compare the mean age of those without diabetes to those with diabetes, by calculating the former.
+:::
+
+::: {.callout-tip icon="false" collapse="true"}
+## Solution
+
+```{r}
+dfr %>% 
+  filter(diabetes == "No") %>% 
+  summarise(
+    mean_age_nondiabetic = mean(age)
+  ) # Return a tibble object
+```
+
+:::
+
+We can add more summary statistics using the built-in R functions such as `sd` (standard deviation), `var` (variance) `median`, `IQR` (interquartile range), and more.
+
+```{r}
+dfr %>% 
+  filter(diabetes == "Yes") %>% 
+  summarise(
+    mean_age_diabetic = mean(age),
+    sd_age_diabetic = sd(age),
+    var_age_diabetic = var(age),
+    median_age_diabetic = median(age),
+    iqr_age_diabetic = IQR(age)
+  )
+```
+
+Comparative statistics allow us to compare statistics by the levels of a categorical variable. The `group_by` verb groups any analyses by the levels of a categorical variable. In the example below, we calculate the same age statistics, but for each of the levels of the $\texttt{siabetes}$ variable. We also add the `n` function (with no argument), which counts the number of observations. We named this statistic `N`.
+
+```{r}
+# Comparative statistics
+dfr %>% 
+  group_by(diabetes) %>% 
+  summarise(
+    N = n(),
+    mean_age = mean(age),
+    sd_age = sd(age),
+    var_age = var(age),
+    median_age = median(age),
+    iqr_age = IQR(age)
+  )
+```
+
+::: {.callout-note icon="false"}
+## Task
+
+Generate comparative summary statistics (using the same statistics as above) for the $\texttt{time}$ variable, comparing by the levels of the $\texttt{anaemia}$ variable.
+:::
+
+::: {.callout-tip icon="false" collapse="true"}
+## Solution
+
+```{r}
+dfr %>% 
+  group_by(anaemia) %>% 
+  summarise(
+    N = n(),
+    mean_time = mean(time),
+    sd_time = sd(time),
+    var_time = var(time),
+    median_time = median(time),
+    iqr_time = IQR(time)
+  )
+```
+
+:::
+
+## Conclusion
+
+The tidyverse, and especially the dplyr package and the pipe operator from the magrittr library are the new standard for data manipulation in R. The common syntax makes data analyses and visualization very simple.
+
+## Lab assignment
+
+[20 points]
+
+The lab assignments are the same as those in the previous notebook. Solve all the problems using tidyverse principles.
+
+### Section 1
+
+[2 points]
+
+Determine the unique elements for the $\texttt{smoking}$ variable.
+
+### Section 2
+
+[2 points]
+
+Select all the observations for the $\texttt{smoking}$ variable only.
+
+### Section 3
+
+[4 points]
+
+Select all the observations only for those who do not smoke.
+
+### Section 4
+
+[2 points]
+
+Select the observations in rows $100$ through $110$ and show only the $\texttt{diabetes}$ and $\texttt{smoking}$ variable data.
+
+::: {.callout-warning icon="false"}
+## Hint
+
+This requires the use of the `slice` verb.
+:::
+
+### Section 5
+
+[4 point]
+
+Select all the observations for those who smoked and died.
+
+### Section 6
+
+[ 6 points]
+
+Select all the observations for those who were either female or who did not smoke or who has diabetes.
